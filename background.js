@@ -50,6 +50,10 @@ async function _resolveEffectiveHistoryMax() {
   return 1000;
 }
 
+function _computeHistoryMax(isPro, plan, system) {
+  return 1000;
+}
+
 async function _midnightResetHistoryIfNeeded() {
   return false;
 }
