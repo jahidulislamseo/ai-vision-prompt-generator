@@ -1,9 +1,10 @@
 # AI Vision Prompt Generator — Chrome Extension
 
-[![⬇️ Download ZIP (v3.3.0)](https://img.shields.io/badge/⬇️_Download_Extension_ZIP-v3.3.0-2563eb?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jahidulislamseo/ai-vision-prompt-generator/archive/refs/heads/master.zip)
+[![⬇️ Download ZIP (v3.3.0)](https://img.shields.io/badge/⬇️_Download_Extension_ZIP-v3.3.0-2563eb?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases/download/v3.3.0/ai-vision-prompt-generator-v3.3.0.zip)
+[![Downloads](https://img.shields.io/github/downloads/jahidulislamseo/ai-vision-prompt-generator/total?style=for-the-badge&logo=github&color=2ea44f&label=Downloads)](https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases)
 [![Manifest V3](https://img.shields.io/badge/Manifest_V3-Chrome_Extension-059669?style=for-the-badge&logo=google-chrome&logoColor=white)](https://developer.chrome.com/docs/extensions/mv3/)
 
-> 🚀 **Direct Download:** **[👉 Click Here to Download Extension ZIP (v3.3.0)](https://github.com/jahidulislamseo/ai-vision-prompt-generator/archive/refs/heads/master.zip)**  
+> 🚀 **Direct Download:** **[👉 Click Here to Download Extension ZIP (v3.3.0)](https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases/download/v3.3.0/ai-vision-prompt-generator-v3.3.0.zip)**  
 > *Unzip the file → Go to `chrome://extensions` → Turn on **Developer mode** → Click **Load unpacked** and select the folder.*
 
 A high-performance Manifest V3 Chrome Extension that converts any web image, screen snip area, or desktop file into detailed, production-ready AI image generation prompts for Midjourney v6.1, DALL-E 3, Flux Schnell/Dev, and Stable Diffusion XL.
@@ -71,7 +72,7 @@ You do **not** need Node.js or any build tools to use this extension. It runs na
 ### Method 1: Download ZIP (Easiest)
 
 1. Click the green **`<> Code`** button at the top of this GitHub repository.
-2. Select **"Download ZIP"** (or [click here to download](https://github.com/jahidulislamseo/ai-vision-prompt-generator/archive/refs/heads/master.zip)).
+2. Select **"Download ZIP"** (or [click here to download](https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases/download/v3.3.0/ai-vision-prompt-generator-v3.3.0.zip)).
 3. Extract (unzip) the downloaded file on your computer. You will get a folder named `ai-vision-prompt-generator-master`.
 4. Open Google Chrome (or Edge / Brave / Opera).
 5. In the address bar, type **`chrome://extensions`** and press **Enter**.
