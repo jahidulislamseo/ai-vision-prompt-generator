@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Vision Prompt</title>
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --gb:rgba(0,0,0,0.05);--gbr:rgba(0,0,0,0.1);
+    --ac:#3b82f6;--ac2:#8b5cf6;--ok:#34d399;--fail:#f87171;
+    --tx:#0f172a;--txm:#64748b;--sf:#f1f5f9;
+  }
+  body{
+    width:360px;min-height:480px;background:#ffffff;color:var(--tx);
+    font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;
+    overflow-x:hidden;position:relative;
+  }
+  body::before{content:'';position:fixed;width:230px;height:230px;
+    background:radial-gradient(circle,rgba(59,130,246,0.14) 0%,transparent 70%);
+    top:-60px;right:-40px;pointer-events:none}
+  body::after{content:'';position:fixed;width:170px;height:170px;
+    background:radial-gradient(circle,rgba(139,92,246,0.11) 0%,transparent 70%);
+    bottom:-40px;left:-20px;pointer-events:none}
+  .wrap{padding:15px;position:relative;z-index:1}
+
+  #pm-header{display:flex;align-items:center;gap:10px;margin-bottom:13px}
+  #logo-link{color:inherit}
+  .logo{width:40px;height:40px;background:transparent;
+    border-radius:9px;display:flex;align-items:center;justify-content:center;
+    font-size:20px;box-shadow:none;flex-shrink:0}
+  #pm-header h1{font-size:14px;font-weight:700;letter-spacing:-0.3px;
+    background:linear-gradient(135deg,#0f172a,#334155);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  #pm-header p{font-size:10px;color:var(--txm);margin-top:1px}
+
+  .nav{display:flex;background:var(--sf);border:1px solid var(--gbr);
+    border-radius:11px;padding:3px;margin-bottom:13px;gap:3px}
+  .nav-btn{flex:1;padding:7px 0;border:none;border-radius:8px;
+    background:transparent;color:var(--txm);font-size:11px;font-weight:600;
+    cursor:pointer;transition:all 0.25s cubic-bezier(0.16,1,0.3,1);font-family:inherit;position:relative}
+  .nav-btn.active{background:linear-gradient(135deg,rgba(59,130,246,0.25),rgba(139,92,246,0.25));
+    color:#0f172a;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.1)}
+  .history-badge{position:absolute;top:1px;right:2px;min-width:16px;height:15px;padding:0 4px;border-radius:999px;
+    background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#0f172a;font-size:9px;font-weight:800;
+    display:none;align-items:center;justify-content:center;line-height:1;box-shadow:0 1px 6px rgba(0,0,0,0.35);pointer-events:none}
+  .history-badge.on{display:flex}
+
+  .pg{display:none}.pg.on{display:block}
+
+  @keyframes pmFadeUp{from{opacity:0;transform:translateY(11px)}to{opacity:1;transform:translateY(0)}}
+  .pg.anim>*{animation:pmFadeUp 0.44s cubic-bezier(0.16,1,0.3,1) both}
+  .pg.anim>*:nth-child(1){animation-delay:.00s}
+  .pg.anim>*:nth-child(2){animation-delay:.05s}
+  .pg.anim>*:nth-child(3){animation-delay:.10s}
+  .pg.anim>*:nth-child(4){animation-delay:.15s}
+  .pg.anim>*:nth-child(5){animation-delay:.20s}
+  .pg.anim>*:nth-child(6){animation-delay:.25s}
+  .pg.anim>*:nth-child(n+7){animation-delay:.28s}
+  .pg.anim .ai-grid>*{animation:pmFadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both}
+  .pg.anim .ai-grid>*:nth-child(1){animation-delay:.06s}
+  .pg.anim .ai-grid>*:nth-child(2){animation-delay:.10s}
+  .pg.anim .ai-grid>*:nth-child(3){animation-delay:.14s}
+  .pg.anim .ai-grid>*:nth-child(4){animation-delay:.18s}
+  .pg.anim .ai-grid>*:nth-child(5){animation-delay:.22s}
+  .pg.anim .ai-grid>*:nth-child(6){animation-delay:.26s}
+  .pg.anim .ai-grid>*:nth-child(7){animation-delay:.30s}
+  .pg.anim .ai-grid>*:nth-child(8){animation-delay:.34s}
+  .pg.anim .hist-list>*{animation:pmFadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both}
+  .pg.anim .hist-list>*:nth-child(1){animation-delay:.06s}
+  .pg.anim .hist-list>*:nth-child(2){animation-delay:.10s}
+  .pg.anim .hist-list>*:nth-child(3){animation-delay:.14s}
+  .pg.anim .hist-list>*:nth-child(4){animation-delay:.18s}
+  .pg.anim .hist-list>*:nth-child(n+5){animation-delay:.22s}
+  @media (prefers-reduced-motion:reduce){
+    .pg.anim>*,.pg.anim .ai-grid>*,.pg.anim .hist-list>*{animation:none}
+  }
+
+  .server-card{background:var(--gb);border:1px solid var(--gbr);border-radius:11px;
+    padding:11px 13px;margin-bottom:11px;display:flex;align-items:center;gap:10px}
+  #status-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;transition:all 0.3s cubic-bezier(0.16,1,0.3,1)}
+  #status-dot.online{background:#34d399;box-shadow:0 0 8px rgba(52,211,153,0.7)}
+  #status-dot.offline{background:#f87171}
+  #status-dot.checking{background:#fbbf24;box-shadow:0 0 8px rgba(251,191,36,0.7)}
+  .status-info{flex:1;min-width:0}
+  .status-label{font-size:10px;color:var(--txm);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+  #status-text{font-size:12px;font-weight:600;color:var(--tx);margin-top:2px}
+  #status-globe{font-size:18px;line-height:1;background:none;border:none;cursor:pointer;padding:4px;
+    border-radius:8px;transition:background 0.2s cubic-bezier(0.16,1,0.3,1),transform 0.2s cubic-bezier(0.16,1,0.3,1)}
+  #status-globe:hover{background:rgba(255,255,255,0.06)}
+  #status-globe:active{transform:scale(0.96)}
+
+  .remaining-card{background:var(--gb);border:1px solid var(--gbr);border-radius:11px;padding:11px 13px;margin-bottom:11px}
+  .remaining-label{font-size:10px;color:var(--txm);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+  .remaining-sub{font-size:10px;color:var(--txm);margin-bottom:10px}
+  .remaining-stats{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .rstat{flex:1;text-align:center}
+  .rstat-val{font-size:20px;font-weight:700;line-height:1;margin-bottom:3px}
+  .rstat-val.used{color:#f87171}
+  .rstat-val.left{color:#34d399}
+  .rstat-val.total{color:#475569}
+  .rstat-lbl{font-size:9px;color:var(--txm);text-transform:uppercase;letter-spacing:0.6px;font-weight:600}
+  .rstat-div{width:1px;height:28px;background:rgba(255,255,255,0.08)}
+  .progress-bar{height:4px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden}
+  #remaining-bar{
+    height:3px;width:100%;min-width:0;background:linear-gradient(90deg,#3b82f6,#8b5cf6);
+    border-radius:3px;transition:width 0.5s ease;
+  }
+  #remaining-bar.low{background:linear-gradient(90deg,#f59e0b,#f87171)}
+
+  @keyframes act-border-spin{
+    from{transform:translate(-50%,-50%) rotate(0deg)}
+    to  {transform:translate(-50%,-50%) rotate(360deg)}
+  }
+  .act-card{background:rgba(59,130,246,0.06);border:none;border-radius:10px;padding:12px;
+    margin-bottom:11px;position:relative;z-index:0;overflow:hidden}
+  .act-card::before{content:'';position:absolute;width:200%;height:600%;
+    top:50%;left:50%;transform:translate(-50%,-50%);
+    background:conic-gradient(from 0deg,
+      transparent 0deg,transparent 330deg,
+      rgba(147,197,253,0.0) 335deg,rgba(147,197,253,0.9) 345deg,rgba(147,197,253,0.0) 355deg,
+      transparent 360deg);
+    animation:act-border-spin 3s linear infinite;z-index:-2;pointer-events:none}
+  .act-card::after{content:'';position:absolute;inset:1px;border-radius:9px;
+    background:#0c101e;z-index:-1;pointer-events:none}
+  .act-card-desc{font-size:11px;color:#334155;margin-bottom:8px}
+  .act-row{display:flex;gap:6px;margin-bottom:6px}
+  .act-input{flex:1;padding:8px 10px;background:#ffffff;border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:#0f172a;font-size:12px;font-family:inherit;outline:none}
+  .act-activate-btn{padding:8px 14px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:none;border-radius:7px;color:#0f172a;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all 0.2s}
+  .act-error-msg{font-size:10px;color:#f87171;margin-bottom:4px}
+  .act-footer-links{font-size:10px;color:#334155}
+  .act-footer-links a{color:#60a5fa;text-decoration:none}
+
+  .pro-info-card{border-radius:10px;padding:12px;margin-bottom:11px}
+  .pro-info-b{background:#eff6ff;border:1px solid #bfdbfe}
+  .pro-info-a{background:#f0fdf4;border:1px solid #bbf7d0}
+  .pro-info-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .pro-dot-wrap{display:flex;align-items:center;gap:6px}
+  .pro-dot{width:8px;height:8px;border-radius:50%;background:#60a5fa;box-shadow:0 0 6px rgba(96,165,250,0.7)}
+  .pro-dot-green{background:#34d399;box-shadow:0 0 6px rgba(52,211,153,0.7)}
+  .pro-active-label{font-size:11px;font-weight:700;color:#0f172a}
+  .signout-btn{padding:3px 8px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);border-radius:5px;color:#f87171;font-size:10px;cursor:pointer;font-family:inherit}
+  .pro-detail{font-size:11px;color:#475569;margin-bottom:3px}
+  .pro-val{color:#0f172a;font-weight:600}
+  .pro-days{color:#fbbf24;font-weight:600;margin-left:4px}
+  .pro-days.urgent{color:#f87171}
+
+  .key-section{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:11px}
+  .key-group{margin-bottom:8px}
+  .key-label{font-size:11px;color:#334155;margin-bottom:4px}
+  .key-badge-green{font-size:9px;color:#34d399;font-weight:600}
+  .key-badge-yellow{font-size:9px;color:#fbbf24;font-weight:600}
+  .key-row{display:flex;gap:6px}
+  .key-rows{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}
+  .key-dyn-row{display:flex;gap:6px;align-items:center}
+  .key-del-btn{padding:5px 8px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.25);border-radius:6px;color:#f87171;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;flex-shrink:0}
+  .key-add-btn{padding:5px 10px;background:#f1f5f9;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#334155;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit}
+  .key-row-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;align-items:center}
+  .key-input{flex:1;padding:7px 10px;background:#ffffff;border:1px solid #cbd5e1;border-radius:7px;color:#0f172a;font-size:11px;font-family:monospace;outline:none;min-width:0}
+  .key-save-btn{padding:7px 12px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:none;border-radius:7px;color:#0f172a;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit}
+  .key-save-gemini{background:linear-gradient(135deg,#f59e0b,#d97706)}
+  .key-hint{font-size:9px;color:#334155;margin:-2px 0 6px;line-height:1.35}
+  .key-footer{display:flex;justify-content:flex-end;align-items:center;font-size:10px;color:#334155;margin-top:10px}
+  .key-footer a{color:#60a5fa;text-decoration:none}
+  .clear-keys-btn{padding:3px 8px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);border-radius:5px;color:#f87171;font-size:10px;cursor:pointer;font-family:inherit}
+
+  .api-keys-master{margin-bottom:11px}
+  .api-keys-card{padding:12px}
+  .key-tabs{display:flex;gap:6px;margin-bottom:12px}
+  .key-tab{flex:1;padding:8px 6px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);
+    background:rgba(0,0,0,0.2);color:#64748b;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s}
+  .key-tab:hover{color:#1e293b;border-color:rgba(99,102,241,0.35)}
+  .key-tab.on{
+    color:#2563eb;border-color:#3b82f6;
+    background:#eff6ff;
+    box-shadow:0 0 0 1px rgba(59,130,246,0.25),inset 0 0 12px rgba(59,130,246,0.08)}
+  .key-tab-panel{display:none;margin-top:4px}
+  .key-tab-panel.on{display:block}
+  .key-panel-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .key-panel-title{font-size:10px;font-weight:800;letter-spacing:0.6px;color:#334155}
+  .key-get-link{font-size:10px;font-weight:700;color:#60a5fa;text-decoration:none}
+  .key-get-link:hover{text-decoration:underline}
+  .key-tab-hint{font-size:9px;color:#334155;margin:0 0 8px;line-height:1.35}
+  .key-rows-adv{display:flex;flex-direction:column;gap:7px;margin-bottom:8px}
+  .key-adv-row{display:flex;align-items:center;gap:8px;padding:7px 8px;background:rgba(0,0,0,0.28);
+    border:1px solid rgba(52,211,153,0.12);border-radius:9px}
+  .key-adv-row.row-invalid{border-color:rgba(248,113,113,0.35)}
+  .key-adv-row.row-valid{border-color:rgba(52,211,153,0.35)}
+  .key-num{flex-shrink:0;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,rgba(59,130,246,0.35),rgba(99,102,241,0.25));border-radius:6px;
+    font-size:11px;font-weight:800;color:#fff}
+  .key-badge-row{flex-shrink:0;font-size:9px;font-weight:800;padding:3px 7px;border-radius:6px;white-space:nowrap}
+  .key-badge-ok{display:none;background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.35)}
+  .key-badge-bad{display:none;background:rgba(248,113,113,0.12);color:#f87171;border:1px solid rgba(248,113,113,0.3)}
+  .key-del-xs{flex-shrink:0;width:26px;height:26px;padding:0;border-radius:6px;border:1px solid rgba(255,255,255,0.1);
+    background:#f8fafc;color:#334155;font-size:16px;line-height:1;cursor:pointer;font-family:inherit}
+  .key-del-xs:hover{color:#f87171;border-color:rgba(248,113,113,0.35)}
+  .key-add-dashed{width:100%;margin-top:4px;padding:10px 12px;border-radius:10px;border:1px dashed rgba(255,255,255,0.22);
+    background:transparent;color:#334155;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s}
+  .key-add-dashed:hover{color:#334155;border-color:rgba(99,102,241,0.45);background:rgba(99,102,241,0.06)}
+  .key-dash-stats{display:flex;gap:6px;margin-top:10px}
+  .key-stat-card{flex:1;text-align:center;padding:8px 4px;background:#f8fafc;border:1px solid rgba(255,255,255,0.08);border-radius:10px}
+  .key-stat-lbl{font-size:8px;font-weight:800;color:#334155;letter-spacing:0.5px;margin-bottom:4px}
+  .key-stat-val{font-size:16px;font-weight:800;color:#334155}
+  .key-stat-ok .key-stat-val{color:#34d399}
+  .key-stat-bad .key-stat-val{color:#f87171}
+  .btn-save-validate{width:100%;margin-top:12px;padding:12px 14px;border:none;border-radius:11px;cursor:pointer;font-family:inherit;
+    font-size:12px;font-weight:800;color:#0f172a;
+    background:linear-gradient(90deg,#3b82f6,#6366f1,#8b5cf6);
+    box-shadow:0 4px 18px rgba(99,102,241,0.35);transition:transform 0.15s,opacity 0.2s}
+  .btn-save-validate:hover{transform:translateY(-1px)}
+  .btn-save-validate:disabled{opacity:0.55;cursor:not-allowed;transform:none}
+
+  .pm-daily-limit-banner{display:none;margin-bottom:11px;padding:10px 12px;border-radius:10px;font-size:11px;line-height:1.45;
+    color:#fecaca;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.28)}
+
+  .device-id-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:10px;margin-bottom:10px}
+
+  .tog-row{display:flex;align-items:center;justify-content:space-between;
+    background:var(--gb);border:1px solid var(--gbr);border-radius:11px;padding:9px 12px;margin-bottom:11px}
+  .tog-lbl{display:flex;align-items:center;gap:8px}
+  .tog-ico{font-size:14px}
+  .tog-title{font-size:11px;font-weight:600}
+  .tog-sub{font-size:10px;color:var(--txm);margin-top:1px}
+  .sw{position:relative;width:38px;height:21px;flex-shrink:0}
+  .sw input{opacity:0;width:0;height:0}
+  .sl{position:absolute;inset:0;background:rgba(255,255,255,0.1);
+    border-radius:21px;cursor:pointer;transition:all 0.3s cubic-bezier(0.16,1,0.3,1);
+    border:1px solid rgba(255,255,255,0.08)}
+  .sl::before{content:'';position:absolute;width:15px;height:15px;left:3px;top:50%;transform:translateY(-50%);
+    background:rgba(255,255,255,0.5);border-radius:50%;transition:all 0.3s cubic-bezier(0.16,1,0.3,1)}
+  .sw input:checked+.sl{background:linear-gradient(135deg,var(--ac),var(--ac2));border-color:transparent;box-shadow:0 2px 8px rgba(59,130,246,0.35)}
+  .sw input:checked+.sl::before{transform:translateY(-50%) translateX(17px);background:#fff}
+
+  .sec-lbl{
+    font-size:10px;font-weight:700;color:#334155;
+    text-transform:uppercase;letter-spacing:0.8px;margin-bottom:7px;
+  }
+  .style-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:11px}
+  .sty-btn{padding:8px 5px;background:var(--gb);border:1px solid var(--gbr);
+    border-radius:9px;color:var(--txm);font-size:10px;font-weight:600;
+    cursor:pointer;transition:all 0.2s cubic-bezier(0.16,1,0.3,1);text-align:center;font-family:inherit}
+  .sty-btn .se{font-size:14px;display:block;margin-bottom:3px}
+  .sty-btn:hover{border-color:rgba(59,130,246,0.4);color:var(--tx)}
+  .sty-btn.on{
+    background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(139,92,246,0.2));
+    border-color:rgba(99,102,241,0.5);color:#0f172a;
+  }
+
+  .ft{margin-top:9px;text-align:center;font-size:9px;color:var(--txm)}
+
+  .hist-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+  .hist-hdr-t{font-size:11px;font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:0.8px}
+  .clr-btn{font-size:10px;color:var(--fail);background:none;border:none;
+    cursor:pointer;font-weight:600;opacity:0.7;font-family:inherit;transition:opacity 0.2s}
+  .clr-btn:hover{opacity:1}
+  .hist-empty{text-align:center;padding:35px 16px;color:var(--txm);font-size:12px;line-height:1.8}
+  .hist-empty .ei{font-size:32px;margin-bottom:8px;opacity:0.4}
+  .hist-list{display:flex;flex-direction:column;gap:7px;max-height:380px;overflow-y:auto;padding-right:2px}
+  .hist-list::-webkit-scrollbar{width:3px}
+  .hist-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+  .hist-card{background:var(--gb);border:1px solid var(--gbr);border-radius:11px;padding:10px 12px;
+    transition:border-color 0.2s cubic-bezier(0.16,1,0.3,1);position:relative}
+  .hist-card:hover{border-color:rgba(59,130,246,0.3)}
+  .hc-lock-overlay{position:absolute;inset:0;border-radius:11px;z-index:5;cursor:pointer;background:transparent}
+  .hist-card.locked .hc-text{user-select:none}
+  .hc-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .hc-style{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:0.5px}
+  .hc-style.universal{background:rgba(59,130,246,0.2);color:#60a5fa}
+  .hc-style.midjourney{background:rgba(139,92,246,0.2);color:#a78bfa}
+  .hc-style.stablediff{background:rgba(245,158,11,0.2);color:#fbbf24}
+  .hc-style.dalle{background:rgba(16,185,129,0.2);color:#34d399}
+  .hc-style.flux{background:rgba(239,68,68,0.2);color:#f87171}
+  .hc-style.auto { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
+  .hc-time{font-size:9px;color:var(--txm)}
+  .hc-text{font-size:11px;color:#334155;line-height:1.55;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .hc-btns{display:flex;gap:5px;margin-top:8px}
+  .hb{flex:1;padding:5px;border:1px solid var(--gbr);border-radius:6px;
+    background:transparent;color:var(--txm);font-size:10px;font-weight:600;
+    cursor:pointer;font-family:inherit;transition:all 0.2s cubic-bezier(0.16,1,0.3,1)}
+  .hb.cp:hover{border-color:rgba(59,130,246,0.4);color:var(--ac)}
+  .hb.dl:hover{border-color:rgba(248,113,113,0.3);color:var(--fail)}
+
+  .ai-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;align-items:stretch}
+  .ai-btn{padding:12px 10px;background:linear-gradient(160deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015) 55%,rgba(255,255,255,0.04));
+    border:1px solid var(--gbr);border-radius:13px;color:var(--tx);font-size:11px;font-weight:700;
+    cursor:pointer;transition:all 0.3s cubic-bezier(0.16,1,0.3,1);font-family:inherit;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-decoration:none;min-height:78px;
+    box-shadow:0 2px 8px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)}
+  .ai-btn .ai-ico{font-size:24px;line-height:1;display:block;color:#1e293b;margin-bottom:2px;}
+  .ai-btn .ai-name{line-height:1.2;text-align:center;letter-spacing:.12px;color:#0f172a;font-weight:700;font-size:12px;}
+  .ai-btn:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 10px 24px rgba(0,0,0,.3),0 0 0 1px rgba(255,255,255,.06) inset}
+  .ai-btn.ai-midjourney{border-color:#cbd5e1;background:#f8fafc}
+  .ai-btn.ai-midjourney:hover{box-shadow:0 10px 24px rgba(226,232,240,.16)}
+  .ai-btn.ai-dalle{border-color:#c7d2fe;background:#eef2ff}
+  .ai-btn.ai-stablediff{border-color:#ddd6fe;background:#f5f3ff}
+  .ai-btn.ai-flux{border-color:#e0e7ff;background:#eef2ff}
+  .ai-btn.ai-ideogram{border-color:#fef08a;background:#fefce8}
+  .ai-btn.ai-playground{border-color:#fed7aa;background:#fff7ed}
+  .ai-btn.ai-firefly{border-color:#fecdd3;background:#fff1f2}
+  .ai-btn.ai-leonardo{border-color:#bae6fd;background:#f0f9ff}
+  .ai-tip{margin-top:11px;padding:10px 12px;background:var(--gb);
+    border:1px solid var(--gbr);border-radius:10px;font-size:10px;
+    color:#334155;line-height:1.6;text-align:center}
+
+  #toast{position:fixed;bottom:12px;left:50%;transform:translateX(-50%) translateY(18px);
+    background:rgba(18,18,30,0.97);border:1px solid var(--gbr);border-radius:20px;
+    padding:6px 14px;font-size:11px;font-weight:600;opacity:0;
+    transition:all 0.4s cubic-bezier(0.16,1,0.3,1);z-index:100;white-space:nowrap;max-width:90%;text-align:center}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* Upgrade Modal */
+  #upgrade-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:200;align-items:center;justify-content:center}
+  #upgrade-modal-overlay.open{display:flex}
+  #upgrade-modal{background:#ffffff;border:1px solid rgba(139,92,246,0.45);border-radius:16px;padding:26px 22px 20px;width:300px;text-align:center;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.7)}
+  .upm-close{position:absolute;top:10px;right:13px;background:none;border:none;color:#334155;font-size:18px;cursor:pointer;line-height:1;padding:2px 4px}
+  .upm-close:hover{color:#334155}
+  .upm-icon{font-size:34px;margin-bottom:10px}
+  .upm-title{font-size:15px;font-weight:700;color:var(--tx);margin-bottom:6px}
+  .upm-sub{font-size:12px;color:var(--txm);line-height:1.6;margin-bottom:20px}
+  .upm-btn{display:block;width:100%;padding:11px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:none;border-radius:10px;color:#0f172a;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px;letter-spacing:0.3px}
+  .upm-btn:hover{opacity:0.88}
+  .upm-later{background:none;border:none;color:var(--txm);font-size:11px;cursor:pointer;padding:4px 8px}
+  .upm-later:hover{color:var(--tx)}
+
+  /* CSV Clear Confirm Dialog */
+  /* Welcome Screen */
+  #welcome-overlay{display:none;position:fixed;inset:0;background:#08080f;z-index:300;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px}
+  #welcome-overlay.open{display:flex}
+  .wlc-icon{font-size:46px;margin-bottom:12px}
+  .wlc-title{font-size:17px;font-weight:800;background:linear-gradient(135deg,#0f172a,#334155);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;margin-bottom:5px;letter-spacing:-0.3px}
+  .wlc-sub{font-size:11px;color:var(--txm);text-align:center;margin-bottom:20px}
+  .wlc-features{width:100%;background:#f8fafc;border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:14px 16px;margin-bottom:20px;display:flex;flex-direction:column;gap:11px}
+  .wlc-feat{display:flex;align-items:center;gap:11px;font-size:12px;color:#334155;line-height:1.4}
+  .wlc-feat-ico{font-size:17px;width:22px;text-align:center;flex-shrink:0}
+  .wlc-start-btn{width:100%;padding:13px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:none;border-radius:12px;color:#0f172a;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:opacity 0.2s;margin-bottom:10px;letter-spacing:-0.2px}
+  .wlc-start-btn:hover{opacity:0.88}
+  .wlc-activate-link{font-size:11px;color:#334155;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+  .wlc-activate-link:hover{color:#334155}
+
+  /* Limit Nudge Banner */
+  #limit-nudge{display:none;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(139,92,246,0.1));border:1px solid rgba(99,102,241,0.3);border-radius:10px;padding:10px 12px;margin-bottom:11px}
+  #limit-nudge.show{display:flex}
+  .nudge-msg{flex:1;font-size:11px;color:#1e293b;line-height:1.45}
+  .nudge-upgrade{padding:5px 10px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:none;border-radius:7px;color:#0f172a;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block;font-family:inherit}
+  .nudge-dismiss{background:none;border:none;color:#334155;font-size:18px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
+  .nudge-dismiss:hover{color:#334155}
+
+  #csv-confirm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:200;align-items:center;justify-content:center}
+  #csv-confirm-overlay.open{display:flex}
+  #csv-confirm-dialog{background:#ffffff;border:1px solid rgba(139,92,246,0.35);border-radius:16px;padding:24px 20px 18px;width:280px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.7)}
+  .csv-ci{font-size:30px;margin-bottom:10px}
+  .csv-ct{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:6px}
+  .csv-cs{font-size:11.5px;color:var(--txm);line-height:1.6;margin-bottom:18px}
+  .csv-cyes{display:block;width:100%;padding:10px;background:linear-gradient(135deg,#ef4444,#b91c1c);border:none;border-radius:10px;color:#0f172a;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px}
+  .csv-cyes:hover{opacity:0.88}
+  .csv-ckeep{background:none;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:var(--txm);font-size:12px;cursor:pointer;padding:8px 16px;width:100%}
+  .csv-ckeep:hover{color:var(--tx);border-color:#334155}
+  #bulk-generate-btn:hover{background:linear-gradient(135deg,rgba(59,130,246,0.25),rgba(139,92,246,0.25));border-color:rgba(99,102,241,0.6);box-shadow:0 0 8px rgba(99,102,241,0.25);transform:translateY(-1px)}
+  #bulk-generate-btn:active{transform:translateY(0);box-shadow:none}
+
+  /* Dropzone Styling */
+  .dz-card{
+    border:2px dashed #93c5fd;border-radius:12px;padding:15px 12px;text-align:center;
+    background:#eff6ff;cursor:pointer;margin-bottom:12px;transition:all 0.2s ease;
+  }
+  .dz-card:hover, .dz-card.dragover{
+    border-color:#2563eb;background:#dbeafe;transform:scale(1.01);
+  }
+  .dz-icon{margin-bottom:6px;color:#2563eb;}
+  .dz-title{font-size:12px;font-weight:700;color:#1e3a8a;margin-bottom:3px;}
+  .dz-browse{color:#2563eb;text-decoration:underline;cursor:pointer;}
+  .dz-sub{font-size:10px;color:#64748b;}
+  .dz-res-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .dz-res-badge{font-size:10px;font-weight:700;color:#059669;background:#ecfdf5;border:1px solid #a7f3d0;padding:2px 8px;border-radius:20px;}
+  .dz-copy-btn{font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:#2563eb;color:#ffffff;border:none;cursor:pointer;}
+  .dz-res-box{font-size:11px;line-height:1.6;color:#0f172a;background:#f8fafc;border:1px solid #cbd5e1;border-radius:9px;padding:10px;max-height:140px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="pm-header">
+    <a id="logo-link" href="#" target="_blank" rel="noopener noreferrer"
+       style="display:flex;align-items:center;gap:10px;text-decoration:none;flex:1;min-width:0">
+      <div class="logo" aria-hidden="true">
+        <img src="Icon/icon48.png" alt=""
+             style="width:30px;height:30px;object-fit:contain;border-radius:4px;display:block"
+             onerror="this.style.display='none';this.parentElement.textContent='\u2728';">
+      </div>
+      <div>
+        <h1>AI Vision Prompt</h1>
+        <p>Image → AI Prompt Generator</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="nav">
+    <button type="button" class="nav-btn active" data-pg="settings"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</button>
+    <button type="button" class="nav-btn" data-pg="history" aria-label="History"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg> History<span class="history-badge" id="history-nav-badge" aria-hidden="true">0</span></button>
+    <button type="button" class="nav-btn" data-pg="openai"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg> Open AI</button>
+  </div>
+
+  <div class="pg on anim" id="pg-settings">
+
+    <div class="server-card">
+      <div id="status-dot" class="checking" role="status" aria-live="polite"></div>
+      <div class="status-info">
+        <div class="status-label">Server Status</div>
+        <div id="status-text">Connecting...</div>
+      </div>
+      <button type="button" id="status-globe" title="Open website" aria-label="Open AI Vision Prompt website"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg></button>
+    </div>
+
+    <div class="remaining-card">
+      <div class="remaining-label" id="remaining-label-el">Today's Free Prompts</div>
+      <div class="remaining-sub" id="remaining-sub-el">Resets at midnight in your timezone</div>
+      <div class="remaining-stats">
+        <div class="rstat">
+          <div class="rstat-val used" id="used-count">0</div>
+          <div class="rstat-lbl">Used</div>
+        </div>
+        <div class="rstat-div"></div>
+        <div class="rstat">
+          <div class="rstat-val left" id="remaining-count">10</div>
+          <div class="rstat-lbl">Remaining</div>
+        </div>
+        <div class="rstat-div"></div>
+        <div class="rstat">
+          <div class="rstat-val total" id="total-count">10</div>
+          <div class="rstat-lbl">Total/Day</div>
+        </div>
+      </div>
+      <div class="progress-bar">
+        <div id="remaining-bar" style="width:100%"></div>
+      </div>
+    </div>
+
+    <!-- Local Desktop Image Upload Dropzone -->
+    <div class="dz-card" id="dz-card">
+      <input type="file" id="dz-file-input" accept="image/png, image/jpeg, image/webp, image/gif" style="display:none;" />
+      <div class="dz-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      </div>
+      <div class="dz-title">Drop an image here or <span class="dz-browse">Browse</span></div>
+      <div class="dz-sub">Generate prompts from desktop PNG, JPG, WEBP</div>
+    </div>
+
+    <div id="dz-result-card" style="display:none;margin-bottom:12px;">
+      <div class="dz-res-hdr">
+        <span class="dz-res-badge">✨ Generated Prompt</span>
+        <button type="button" id="dz-res-copy" class="dz-copy-btn">📋 Copy</button>
+      </div>
+      <div id="dz-res-text" class="dz-res-box"></div>
+    </div>
+
+    <div id="limit-nudge">
+      <span class="nudge-msg"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6z"/></svg> You've used <strong id="nudge-used">7</strong>/10 today — loving it?<br><span style="color:#334155;font-size:10px">Upgrade for unlimited prompts + more</span></span>
+      <a class="nudge-upgrade" href="#" target="_blank" rel="noopener noreferrer"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/></svg> Upgrade</a>
+      <button class="nudge-dismiss" id="nudge-dismiss-btn" aria-label="Dismiss">×</button>
+    </div>
+
+    <div id="main-activation">
+      <div id="state-inactive">
+        <div class="sec-lbl">Activate Your Plan</div>
+        <div class="act-card">
+          <div class="act-card-desc">Enter the email you used to purchase</div>
+          <div class="act-row">
+            <input type="email" id="act-email-inp" placeholder="your@email.com" autocomplete="email" class="act-input" />
+            <button type="button" id="act-btn" class="act-activate-btn">Activate</button>
+          </div>
+          <div id="act-error" class="act-error-msg" style="display:none"></div>
+          <div class="act-footer-links">Personal Key Mode · Unlimited Generations</div>
+        </div>
+      </div>
+      <div id="state-pro-b" style="display:none">
+        <div class="sec-lbl">Your Plan</div>
+        <div class="pro-info-card pro-info-b">
+          <div class="pro-info-header">
+            <div class="pro-dot-wrap">
+              <div class="pro-dot"></div>
+              <span class="pro-active-label">Pro Active</span>
+            </div>
+            <button type="button" id="signout-btn-b" class="signout-btn">Sign Out</button>
+          </div>
+          <div class="pro-detail"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg> <span id="pro-b-email"></span></div>
+          <div class="pro-detail"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg> Plan: <span id="pro-b-plan" class="pro-val"></span></div>
+          <div class="pro-detail"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg> <span id="pro-b-system" class="pro-val"></span></div>
+          <div class="pro-detail"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/></svg> <span id="pro-b-limit" class="pro-val"></span> prompts/day</div>
+          <div class="pro-detail"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Expires: <span id="pro-b-expiry" class="pro-val"></span> <span id="pro-b-days" class="pro-days"></span></div>
+        </div>
+      </div>
+      <div id="state-pro-a" style="display:none">
+        <div class="sec-lbl">Your Plan</div>
+        <div class="pro-info-card pro-info-a">
+          <div class="pro-info-header">
+            <div class="pro-dot-wrap">
+              <div class="pro-dot pro-dot-green"></div>
+              <span class="pro-active-label">Own Key Plan Active</span>
+            </div>
+            <button type="button" id="signout-btn-a" class="signout-btn">Sign Out</button>
+          </div>
+          <div class="pro-detail"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg> <span id="pro-a-email"></span></div>
+          <div class="pro-detail"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg> Plan: <span id="pro-a-plan" class="pro-val"></span></div>
+          <div class="pro-detail"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg> <span id="pro-a-system" class="pro-val"></span></div>
+          <div class="pro-detail"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/></svg> <span id="pro-a-limit" class="pro-val"></span> prompts/day</div>
+          <div class="pro-detail"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Expires: <span id="pro-a-expiry" class="pro-val"></span> <span id="pro-a-days" class="pro-days"></span></div>
+        </div>
+        <div id="api-keys-master-wrap" class="api-keys-master" style="display:none">
+          <div class="sec-lbl" style="margin-top:10px"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/></svg> Your API Keys</div>
+          <div class="key-section api-keys-card">
+            <div class="key-tabs" role="tablist" aria-label="API provider">
+              <button type="button" class="key-tab on" data-tab="groq" id="tab-groq" role="tab" aria-selected="true"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/></svg> Groq</button>
+              <button type="button" class="key-tab" data-tab="gemini" id="tab-gemini" role="tab" aria-selected="false"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6z"/></svg> Gemini</button>
+            </div>
+            <div id="panel-groq" class="key-tab-panel on" role="tabpanel">
+              <div class="key-panel-hdr">
+                <span class="key-panel-title">GROQ API KEYS <span style="display:inline-block;margin-left:7px;padding:2px 8px;border-radius:20px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#0f172a;font-size:9px;font-weight:700;letter-spacing:.6px;vertical-align:middle"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/></svg> FASTEST · 0.5–1.5s</span></span>
+                <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" class="key-get-link">↗ GET KEY</a>
+              </div>
+              <p class="key-tab-hint"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/></svg> Recommended — 5× faster than Gemini. One or more keys per row (comma or new line).</p>
+              <div id="groq-keys-list" class="key-rows-adv"></div>
+              <button type="button" id="groq-add-dashed" class="key-add-dashed">+ Add Groq API Key</button>
+              <div class="key-dash-stats">
+                <div class="key-stat-card"><div class="key-stat-lbl">TOTAL</div><div id="stat-groq-total" class="key-stat-val">0</div></div>
+                <div class="key-stat-card key-stat-ok"><div class="key-stat-lbl">ACTIVE</div><div id="stat-groq-active" class="key-stat-val">0</div></div>
+                <div class="key-stat-card key-stat-bad"><div class="key-stat-lbl">INVALID</div><div id="stat-groq-invalid" class="key-stat-val">0</div></div>
+              </div>
+            </div>
+            <div id="panel-gemini" class="key-tab-panel" role="tabpanel">
+              <div class="key-panel-hdr">
+                <span class="key-panel-title">GEMINI API KEYS <span style="display:inline-block;margin-left:7px;padding:2px 8px;border-radius:20px;background:rgba(139,92,246,0.25);color:#a78bfa;font-size:9px;font-weight:700;letter-spacing:.6px;vertical-align:middle"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6z"/></svg> BACKUP · 5–7s</span></span>
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="key-get-link">↗ GET KEY</a>
+              </div>
+              <p class="key-tab-hint">Optional fallback — used automatically when Groq hits rate limits.</p>
+              <div id="gemini-keys-list" class="key-rows-adv"></div>
+              <button type="button" id="gemini-add-dashed" class="key-add-dashed">+ Add Gemini API Key</button>
+              <div class="key-dash-stats">
+                <div class="key-stat-card"><div class="key-stat-lbl">TOTAL</div><div id="stat-gemini-total" class="key-stat-val">0</div></div>
+                <div class="key-stat-card key-stat-ok"><div class="key-stat-lbl">ACTIVE</div><div id="stat-gemini-active" class="key-stat-val">0</div></div>
+                <div class="key-stat-card key-stat-bad"><div class="key-stat-lbl">INVALID</div><div id="stat-gemini-invalid" class="key-stat-val">0</div></div>
+              </div>
+            </div>
+            <button type="button" id="save-validate-keys-btn" class="btn-save-validate">Save &amp; Validate Keys</button>
+            <div class="key-footer">
+              <button type="button" id="clear-keys-btn" class="clear-keys-btn">Clear Keys</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="device-id-card">
+      <div style="font-size:10px;color:#334155;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Your Device ID</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div id="client-id-val" style="font-size:10px;color:#334155;font-family:monospace;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Generating...</div>
+        <button type="button" id="copy-client-id" style="padding:3px 8px;background:#f1f5f9;border:1px solid rgba(255,255,255,0.1);border-radius:5px;color:#334155;font-size:10px;cursor:pointer;font-family:inherit">Copy</button>
+      </div>
+    </div>
+
+    <div id="bulk-section" style="margin-bottom:11px">
+      <div class="sec-lbl" style="display:flex;align-items:center;gap:6px">Bulk Generate<span style="font-size:9px;font-weight:500;color:#fbbf24;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);border-radius:4px;padding:1px 5px;letter-spacing:0.5px">BETA</span></div>
+      <div id="bulk-locked" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#334155"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span style="margin-left:2px">Bulk Generate</span></div>
+          <div id="bulk-lock-sub" style="font-size:10px;color:#334155;margin-top:2px">Pro feature — upgrade to unlock</div>
+        </div>
+        <a href="#" target="_blank" rel="noopener noreferrer"
+           style="padding:5px 10px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:6px;color:#0f172a;font-size:10px;font-weight:700;text-decoration:none;white-space:nowrap">
+          Upgrade →
+        </a>
+      </div>
+      <div id="bulk-unlocked" style="display:none">
+        <button type="button" id="bulk-generate-btn"
+          style="width:100%;padding:11px;background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(139,92,246,0.15));border:1px solid rgba(99,102,241,0.35);border-radius:10px;color:#0f172a;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px">
+          <span><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/></svg></span>
+          <span id="bulk-btn-text">Bulk Generate This Page</span>
+          <span style="font-size:9px;font-weight:500;color:#fbbf24;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);border-radius:4px;padding:1px 5px;letter-spacing:0.5px">BETA</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="tog-row">
+      <div class="tog-lbl">
+        <span class="tog-ico"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6z"/></svg></span>
+        <div><div class="tog-title">Hover Button</div><div class="tog-sub">Show button on image hover</div></div>
+      </div>
+      <label class="sw"><input type="checkbox" id="hover-toggle" checked /><span class="sl"></span></label>
+    </div>
+
+    <div class="sec-lbl">Prompt Style</div>
+    <div class="style-grid">
+      <button type="button" class="sty-btn on" data-style="universal"><span class="se"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg></span>Universal</button>
+      <button type="button" class="sty-btn" data-style="midjourney"><span class="se"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2a10 10 0 1 0 0 20 3 3 0 0 0 3-3c0-1-1-1.5-1-2.5a2 2 0 0 1 2-2h1.5a3.5 3.5 0 0 0 3.5-3.5C21 6 17 2 12 2z"/></svg></span>Midjourney</button>
+      <button type="button" class="sty-btn" data-style="stablediff"><span class="se"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/></svg></span>Stable Diff</button>
+      <button type="button" class="sty-btn" data-style="dalle"><span class="se"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/><path d="M12 11V7a2 2 0 0 1 2-2h1"/></svg></span>DALL·E 3</button>
+      <button type="button" class="sty-btn" data-style="flux"><span class="se"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15c2-2 4-2 6 0s4 2 6 0 4-2 6 0M2 19c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M6 9V5M12 9V4M18 9V5"/></svg></span>Flux</button>
+      <button type="button" class="sty-btn" data-style="auto"><span class="se"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2z"/></svg></span>Auto</button>
+    </div>
+
+    <div class="ft">Right-click any image → <svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6z"/></svg> Generate AI Prompt</div>
+  </div>
+
+  <div class="pg" id="pg-history">
+    <div class="hist-hdr">
+      <span class="hist-hdr-t"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/></svg> Recent Prompts</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button type="button" id="export-csv-btn" title="" style="
+          font-size:10px;
+          color:#34d399;
+          background:rgba(52,211,153,0.1);
+          border:1px solid rgba(52,211,153,0.25);
+          border-radius:6px;
+          padding:4px 9px;
+          cursor:pointer;
+          font-weight:600;
+          font-family:inherit;
+          transition:all 0.2s;
+          opacity:0.8;
+        "><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg> CSV</button>
+        <button type="button" class="clr-btn" id="clear-history">Clear All</button>
+      </div>
+    </div>
+    <div id="history-container"></div>
+  </div>
+
+  <div class="pg" id="pg-openai">
+    <div class="sec-lbl" style="margin-bottom:10px"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg> Open in AI Tool</div>
+    <div class="ai-grid">
+      <a class="ai-btn ai-midjourney" data-tool="Midjourney" data-tool-key="midjourney" href="https://www.midjourney.com/imagine" target="_blank" rel="noopener noreferrer"><span class="ai-ico"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg></span><span class="ai-name">Midjourney</span></a>
+      <a class="ai-btn ai-bing" data-tool="Bing Image" data-tool-key="bing" href="https://www.bing.com/images/create" target="_blank" rel="noopener noreferrer"><span class="ai-ico"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg></span><span class="ai-name">Bing Image</span></a>
+      <a class="ai-btn ai-stablediff" data-tool="Stable Diffusion" data-tool-key="stableDiffusion" href="https://clipdrop.co/stable-diffusion" target="_blank" rel="noopener noreferrer"><span class="ai-ico"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/></svg></span><span class="ai-name">Stable Diff</span></a>
+      <a class="ai-btn ai-flux" data-tool="Flux" data-tool-key="flux" href="https://fal.ai/models/fal-ai/flux/schnell" target="_blank" rel="noopener noreferrer"><span class="ai-ico"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="12" r="5"/><circle cx="16" cy="12" r="5"/></svg></span><span class="ai-name">Flux</span></a>
+      <a class="ai-btn ai-ideogram" data-tool="Ideogram" data-tool-key="ideogram" href="https://ideogram.ai/" target="_blank" rel="noopener noreferrer"><span class="ai-ico"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.5 1 1.3 1 2.5h6c0-1.2.4-2 1-2.5A6 6 0 0 0 12 3z"/></svg></span><span class="ai-name">Ideogram</span></a>
+      <a class="ai-btn ai-googleflow" data-tool="Google Flow" data-tool-key="googleflow" href="https://labs.google/fx/tools/flow" target="_blank" rel="noopener noreferrer"><span class="ai-ico"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6z"/></svg></span><span class="ai-name">Google Flow</span></a>
+      <a class="ai-btn ai-firefly" data-tool="Adobe Firefly" data-tool-key="firefly" href="https://firefly.adobe.com/generate/text-to-image" target="_blank" rel="noopener noreferrer"><span class="ai-ico"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3-2 4-2 7a4 4 0 0 0 8 0c0-1-.5-2-1-2 .5 2-1 3-2 3a2 2 0 0 1-2-2c0-2 2-3 1-6-2 1-4 3-4 6a5 5 0 0 0 5 5 5 5 0 0 0 5-5c0-4-4-4-8-6z"/></svg></span><span class="ai-name">Adobe Firefly</span></a>
+      <a class="ai-btn ai-leonardo" data-tool="Leonardo AI" data-tool-key="leonardo" href="https://app.leonardo.ai/ai-generations" target="_blank" rel="noopener noreferrer"><span class="ai-ico"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8-6.2-3.2-6.2 3.2 1.2-6.8-5-4.9 6.9-1z"/></svg></span><span class="ai-name">Leonardo AI</span></a>
+    </div>
+    <div class="ai-tip">Copy-ready workflow: click any tool and your latest prompt will be copied automatically before opening.</div>
+  </div>
+
+</div>
+<div id="upgrade-modal-overlay" role="dialog" aria-modal="true">
+  <div id="upgrade-modal">
+    <button class="upm-close" id="upm-close-btn" aria-label="Close">&times;</button>
+    <div class="upm-icon"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+    <div class="upm-title">Upgrade Required</div>
+    <div class="upm-sub">This feature is available on <strong style="color:#c4b5fd">Silver</strong> and <strong style="color:#fbbf24">Golden</strong> plans.<br>Unlock history management, copy prompts &amp; CSV export.</div>
+    <button class="upm-btn" id="upm-upgrade-btn"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/></svg> Upgrade Now — Get Pro</button>
+    <button class="upm-later" id="upm-later-btn">Maybe Later</button>
+  </div>
+</div>
+<div id="welcome-overlay">
+  <div class="wlc-icon"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6z"/></svg></div>
+  <div class="wlc-title">Welcome to AI Vision Prompt!</div>
+  <div class="wlc-sub">Image → AI Prompt Generator</div>
+  <div class="wlc-features">
+    <div class="wlc-feat"><span class="wlc-feat-ico"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v9H5v-9"/><path d="M12 8a2.5 2.5 0 1 1-2.5-2.5C11 5.5 12 8 12 8zM12 8a2.5 2.5 0 1 0 2.5-2.5C13 5.5 12 8 12 8z"/></svg></span><span><strong>10 free prompts every day</strong> — up to 50 total, no credit card</span></div>
+    <div class="wlc-feat"><span class="wlc-feat-ico"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg></span><span>Try every feature and feel the magic</span></div>
+    <div class="wlc-feat"><span class="wlc-feat-ico"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M11 3L8 9l4 12 4-12-3-6M2 9h20"/></svg></span><span>Upgrade anytime for <strong>unlimited</strong> access</span></div>
+  </div>
+  <button class="wlc-start-btn" id="wlc-start-btn">Start for Free →</button>
+  <span class="wlc-activate-link" id="wlc-activate-link">Already have a plan? Activate →</span>
+</div>
+<div id="csv-confirm-overlay" role="dialog" aria-modal="true">
+  <div id="csv-confirm-dialog">
+    <div class="csv-ci" id="csv-confirm-icon"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></div>
+    <div class="csv-ct" id="csv-confirm-title">Downloaded! Clear History?</div>
+    <div class="csv-cs" id="csv-confirm-sub">Your CSV has been saved.<br>Do you want to clear your prompt history now?</div>
+    <button class="csv-cyes" id="csv-confirm-yes-btn"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0l-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg> Yes, Clear History</button>
+    <button class="csv-ckeep" id="csv-confirm-keep-btn">Keep History</button>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+{
+  "action": {
+    "default_icon": {
+      "16": "Icon/icon16.png",
+      "48": "Icon/icon48.png",
+      "128": "Icon/icon128.png"
+    },
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "js": [
+        "content.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "description": "Image to prompt generator: right-click any image for a ready-to-use Midjourney, Stable Diffusion & Flux prompt.",
+  "host_permissions": [
+    "<all_urls>",
+    "file://*/*"
+  ],
+  "icons": {
+    "16": "Icon/icon16.png",
+    "48": "Icon/icon48.png",
+    "128": "Icon/icon128.png"
+  },
+  "manifest_version": 3,
+  "name": "AI Vision Prompt Generator",
+  "permissions": [
+    "contextMenus",
+    "scripting",
+    "activeTab",
+    "storage",
+    "alarms"
+  ],
+  "version": "3.2.2"
+}
