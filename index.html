@@ -1,55 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" prefix="og: https://ogp.me/ns#">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Vision Prompt Generator — Convert Any Image to Midjourney & Flux Prompts</title>
-  <meta name="description" content="Convert any webpage image, screen snip area, or desktop upload into hyper-detailed AI art prompts for Midjourney v6.1, Flux, and DALL-E 3 with dynamic aspect ratios and hex palettes.">
-  <meta name="keywords" content="image to prompt, midjourney prompt generator, reverse image prompt, flux prompt generator, chrome extension ai vision, midjourney v6 prompt">
+  
+  <!-- Primary SEO Meta Tags -->
+  <title>Reverse Image Prompt Generator for Midjourney, Flux & DALL-E | AI Vision Prompt</title>
+  <meta name="description" content="Free open-source Chrome extension to reverse-engineer any image into hyper-detailed prompts for Midjourney v6.1, Flux, and DALL-E 3. Dynamic aspect ratio detection, aesthetic presets & hex color extraction.">
+  <meta name="keywords" content="reverse image prompt generator, image to prompt, midjourney prompt from image, flux prompt generator, extract prompt from image, reverse prompt midjourney v6, ai vision prompt generator">
+  <meta name="author" content="Jahidul Islam">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <link rel="canonical" href="https://jahidulislamseo.github.io/ai-vision-prompt-generator/">
 
-  <!-- Open Graph -->
+  <!-- Open Graph / Facebook / LinkedIn -->
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="AI Vision Prompt Generator">
+  <meta property="og:locale" content="en_US">
   <meta property="og:url" content="https://jahidulislamseo.github.io/ai-vision-prompt-generator/">
-  <meta property="og:title" content="AI Vision Prompt Generator — Reverse Image Prompting for Midjourney & Flux">
-  <meta property="og:description" content="Turn any web image, screen snip, or desktop photo into production-ready prompts with aesthetic presets, parameters, and hex color extraction.">
+  <meta property="og:title" content="Reverse Image Prompt Generator for Midjourney, Flux & DALL-E">
+  <meta property="og:description" content="Convert any web image, screen snip area, or desktop photo into production-ready prompts with dynamic aspect ratios, hex palettes, and Midjourney parameters.">
   <meta property="og:image" content="https://jahidulislamseo.github.io/ai-vision-prompt-generator/Icon/icon128.png">
+  <meta property="og:image:width" content="128">
+  <meta property="og:image:height" content="128">
+  <meta property="og:image:alt" content="AI Vision Prompt Generator Logo">
 
-  <!-- Twitter -->
+  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="AI Vision Prompt Generator — Chrome Extension">
-  <meta name="twitter:description" content="High-precision image-to-prompt engine for Midjourney v6.1, Flux, and DALL-E 3. Manifest V3 & 100% client-side privacy.">
+  <meta name="twitter:title" content="Reverse Image Prompt Generator — Midjourney & Flux">
+  <meta name="twitter:description" content="Extract dense photographic prompts from any image. Screen snip tool, aspect ratio flags, and 1-click aesthetic presets.">
   <meta name="twitter:image" content="https://jahidulislamseo.github.io/ai-vision-prompt-generator/Icon/icon128.png">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" sizes="32x32" href="Icon/icon48.png">
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" sizes="48x48" href="Icon/icon48.png">
   <link rel="icon" type="image/png" sizes="16x16" href="Icon/icon16.png">
+  <link rel="apple-touch-icon" href="Icon/icon128.png">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <!-- Structured Data: SoftwareApplication Schema -->
+  <!-- Multi-Schema Structured Data (Google Rich Snippets Validated) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "AI Vision Prompt Generator",
-    "operatingSystem": "Chrome, Brave, Edge, Opera",
-    "applicationCategory": "DesignApplication",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "description": "Convert any web image, screen snip area, or desktop file into detailed AI image generation prompts for Midjourney v6.1, Flux, and DALL-E 3.",
-    "author": {
-      "@type": "Person",
-      "name": "Jahidul Islam"
-    },
-    "downloadUrl": "https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases/download/v3.3.0/ai-vision-prompt-generator-v3.3.0.zip",
-    "softwareVersion": "3.3.0"
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://jahidulislamseo.github.io/ai-vision-prompt-generator/#website",
+        "url": "https://jahidulislamseo.github.io/ai-vision-prompt-generator/",
+        "name": "AI Vision Prompt Generator",
+        "description": "Reverse image prompt generator for Midjourney v6.1 and Flux",
+        "publisher": {
+          "@type": "Person",
+          "name": "Jahidul Islam"
+        }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://jahidulislamseo.github.io/ai-vision-prompt-generator/#software",
+        "name": "AI Vision Prompt Generator",
+        "operatingSystem": "Google Chrome, Microsoft Edge, Brave, Opera",
+        "applicationCategory": "DesignApplication",
+        "applicationSubCategory": "AI Prompt Engineering",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "High-performance browser extension to reverse engineer any web image, screen snip area, or desktop photo into detailed prompts for Midjourney v6.1, Flux, and DALL-E 3.",
+        "author": {
+          "@type": "Person",
+          "name": "Jahidul Islam"
+        },
+        "downloadUrl": "https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases/download/v3.3.0/ai-vision-prompt-generator-v3.3.0.zip",
+        "softwareVersion": "3.3.0",
+        "fileSize": "114KB",
+        "featureList": [
+          "Area Screen Snip Tool for protected images",
+          "Dynamic aspect ratio detection (--ar 16:9, --ar 9:16)",
+          "Dominant Hex color palette extraction",
+          "1-Click Aesthetic Presets (Cinematic, Pixar, Anime, Cyberpunk, DSLR)",
+          "Midjourney v6.1 parameter controls (--stylize, --chaos, --tile)",
+          "100-Image Bulk Engine",
+          "100% Client-Side Privacy"
+        ]
+      },
+      {
+        "@type": "HowTo",
+        "@id": "https://jahidulislamseo.github.io/ai-vision-prompt-generator/#howto",
+        "name": "How to Convert Any Image into a Midjourney v6.1 Prompt",
+        "description": "Step-by-step tutorial to extract detailed photographic art prompts from images using AI Vision Prompt Generator.",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Select or Snip Any Image",
+            "text": "Hover over any image on a webpage, drag a local desktop file into the popup, or use the Screen Snip tool to capture protected content."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Deconstruct Optics and Lighting",
+            "text": "The localized vision engine analyzes composition, camera focal length, wardrobe textures, and color temperature."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Apply Parameters and Copy",
+            "text": "Adjust Midjourney Stylize and Chaos sliders, select an aesthetic preset, and click Copy to paste into Midjourney or Flux."
+          }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://jahidulislamseo.github.io/ai-vision-prompt-generator/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is a reverse image prompt generator?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "A reverse image prompt generator is a tool that analyzes a visual image and reconstructs the detailed text prompt required to recreate that image using AI art generators like Midjourney, Flux, Stable Diffusion, or DALL-E 3."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does AI Vision Prompt Generator detect Midjourney aspect ratio flags?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The extension automatically inspects the natural pixel width and height of the image, calculates the aspect ratio (e.g. 16:9, 9:16, 1:1, 4:5, 21:9), and appends the exact --ar flag to the final prompt."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does the extension work on protected images like Instagram or Pinterest?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Version 3.3.0 includes an interactive Area Screen Snip tool that allows users to drag a selection box across any screen area, bypassing right-click locks on Instagram, Behance, and Pinterest."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is AI Vision Prompt Generator free and open source?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, AI Vision Prompt Generator is 100% free and open-source under the MIT license, hosted on GitHub with zero telemetry or third-party tracking."
+            }
+          }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://jahidulislamseo.github.io/ai-vision-prompt-generator/#breadcrumb",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://jahidulislamseo.github.io/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "AI Vision Prompt Generator",
+            "item": "https://jahidulislamseo.github.io/ai-vision-prompt-generator/"
+          }
+        ]
+      }
+    ]
   }
   </script>
 
@@ -73,11 +189,7 @@
       --radius-full: 9999px;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
@@ -151,7 +263,7 @@
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 32px;
+      gap: 28px;
     }
 
     .nav-link {
@@ -162,9 +274,7 @@
       transition: color 0.2s;
     }
 
-    .nav-link:hover {
-      color: var(--text-main);
-    }
+    .nav-link:hover { color: var(--text-main); }
 
     .btn {
       display: inline-flex;
@@ -211,7 +321,7 @@
 
     /* Hero */
     .hero {
-      padding: 90px 0 60px;
+      padding: 80px 0 60px;
       text-align: center;
     }
 
@@ -226,7 +336,7 @@
       color: #C4B5FD;
       font-size: 0.85rem;
       font-weight: 600;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
 
     .badge-dot {
@@ -238,7 +348,7 @@
     }
 
     .hero-title {
-      font-size: 3.6rem;
+      font-size: 3.5rem;
       font-weight: 800;
       line-height: 1.15;
       letter-spacing: -0.03em;
@@ -291,7 +401,7 @@
     /* Interactive Simulator */
     .sim-wrap {
       margin: 60px auto 0;
-      max-width: 1020px;
+      max-width: 1040px;
       background: var(--bg-surface);
       border-radius: var(--radius-lg);
       border: 1px solid var(--border-glow);
@@ -361,7 +471,6 @@
       justify-content: center;
       color: #C4B5FD;
       gap: 8px;
-      position: relative;
     }
 
     .palette-box {
@@ -374,13 +483,10 @@
       height: 32px;
       border-radius: 6px;
       cursor: pointer;
-      position: relative;
       transition: transform 0.2s;
     }
 
-    .palette-color:hover {
-      transform: scale(1.1);
-    }
+    .palette-color:hover { transform: scale(1.1); }
 
     .param-group {
       display: flex;
@@ -419,43 +525,72 @@
       line-height: 1.7;
       color: #E2E8F0;
       white-space: pre-wrap;
-      position: relative;
       margin-bottom: 20px;
       min-height: 240px;
     }
 
-    .prompt-label {
-      color: #A78BFA;
-      font-weight: 600;
+    .prompt-label { color: #A78BFA; font-weight: 600; }
+    .prompt-negative { color: #F472B6; }
+    .prompt-flags { color: #38BDF8; }
+
+    .sim-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    /* Model Matrix Section */
+    .matrix-section {
+      padding: 90px 0;
     }
 
-    .prompt-negative {
-      color: #F472B6;
+    .matrix-table-wrap {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow-x: auto;
+      margin-top: 40px;
     }
 
-    .prompt-flags {
-      color: #38BDF8;
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
     }
 
-    .sim-actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+    .matrix-table th {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 18px 24px;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border-subtle);
+      color: #DDD6FE;
     }
 
-    /* Feature Grid */
-    .features-section {
-      padding: 120px 0 80px;
+    .matrix-table td {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-muted);
     }
+
+    .matrix-table tr:last-child td { border-bottom: none; }
+
+    .badge-model {
+      font-family: "JetBrains Mono", monospace;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      background: rgba(139, 92, 246, 0.15);
+      color: #C4B5FD;
+    }
+
+    /* Features Section */
+    .features-section { padding: 100px 0 80px; }
 
     .section-header {
       text-align: center;
-      max-width: 680px;
+      max-width: 720px;
       margin: 0 auto 60px;
     }
 
     .section-title {
-      font-size: 2.3rem;
+      font-size: 2.4rem;
       font-weight: 800;
       letter-spacing: -0.02em;
       margin-bottom: 16px;
@@ -514,9 +649,7 @@
     }
 
     /* Steps */
-    .steps-section {
-      padding: 60px 0 100px;
-    }
+    .steps-section { padding: 60px 0 100px; }
 
     .step-list {
       display: grid;
@@ -590,13 +723,8 @@
       display: none;
     }
 
-    .faq-item.open .faq-answer {
-      display: block;
-    }
-
-    .faq-item.open {
-      border-color: var(--border-glow);
-    }
+    .faq-item.open .faq-answer { display: block; }
+    .faq-item.open { border-color: var(--border-glow); }
 
     /* Bottom Banner */
     .cta-banner {
@@ -608,18 +736,8 @@
       margin-bottom: 100px;
     }
 
-    .cta-banner h2 {
-      font-size: 2.5rem;
-      font-weight: 800;
-      margin-bottom: 16px;
-    }
-
-    .cta-banner p {
-      color: var(--text-muted);
-      max-width: 600px;
-      margin: 0 auto 32px;
-      font-size: 1.1rem;
-    }
+    .cta-banner h2 { font-size: 2.5rem; font-weight: 800; margin-bottom: 16px; }
+    .cta-banner p { color: var(--text-muted); max-width: 620px; margin: 0 auto 32px; font-size: 1.1rem; }
 
     /* Footer */
     footer {
@@ -637,22 +755,12 @@
       gap: 16px;
     }
 
-    .footer-links {
-      display: flex;
-      gap: 20px;
-    }
-
-    .footer-links a {
-      color: var(--text-muted);
-      text-decoration: none;
-    }
-
-    .footer-links a:hover {
-      color: var(--text-main);
-    }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { color: var(--text-muted); text-decoration: none; }
+    .footer-links a:hover { color: var(--text-main); }
 
     @media (max-width: 900px) {
-      .hero-title { font-size: 2.6rem; }
+      .hero-title { font-size: 2.5rem; }
       .sim-grid { grid-template-columns: 1fr; }
       .grid-3, .step-list { grid-template-columns: 1fr; }
       .nav-links { display: none; }
@@ -671,15 +779,16 @@
         <span>AI Vision Prompt</span>
       </a>
       <div class="nav-links">
-        <a href="#features" class="nav-link">Features</a>
         <a href="#simulator" class="nav-link">Live Generator</a>
+        <a href="#matrix" class="nav-link">Model Matrix</a>
+        <a href="#features" class="nav-link">Features</a>
         <a href="#how-it-works" class="nav-link">How It Works</a>
         <a href="#faq" class="nav-link">FAQ</a>
         <a href="https://github.com/jahidulislamseo/ai-vision-prompt-generator" target="_blank" class="nav-link">GitHub</a>
       </div>
       <a href="https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases/download/v3.3.0/ai-vision-prompt-generator-v3.3.0.zip" class="btn btn-primary">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        <span>Download Extension (v3.3.0)</span>
+        <span>Download Extension ZIP</span>
       </a>
     </div>
   </nav>
@@ -689,14 +798,14 @@
     <div class="container">
       <div class="hero-badge">
         <span class="badge-dot"></span>
-        <span>Version 3.3.0 Mega Upgrade • Manifest V3 • Zero AI Latency</span>
+        <span>Version 3.3.0 • Midjourney v6.1 & Flux Schnell Supported • Open Source</span>
       </div>
       <h1 class="hero-title">
-        Turn Any Image into Production <br>
-        <span class="gradient-text">Midjourney & Flux Prompts</span>
+        Reverse Image Prompt Generator for <br>
+        <span class="gradient-text">Midjourney, Flux & DALL-E</span>
       </h1>
       <p class="hero-sub">
-        Hover, snip, or drag-and-drop any image to reverse-engineer dense photographic descriptions, dynamic aspect ratios, aesthetic presets, and hex color palettes.
+        Hover over any web image, snip protected screen areas, or drop local photos to extract dense camera specs, lighting ratios, aesthetic presets, and exact Midjourney parameter flags.
       </p>
       <div class="hero-cta">
         <a href="https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases/download/v3.3.0/ai-vision-prompt-generator-v3.3.0.zip" class="btn btn-primary btn-lg" id="hero-download-btn">
@@ -705,21 +814,21 @@
         </a>
         <a href="https://github.com/jahidulislamseo/ai-vision-prompt-generator" target="_blank" class="btn btn-secondary btn-lg">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-          <span>View on GitHub (Open Source)</span>
+          <span>Explore on GitHub</span>
         </a>
       </div>
       <div class="trust-row">
         <div class="trust-item">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>Midjourney v6.1 & Flux Schnell</span>
+          <span>Midjourney v6.1 Parameters</span>
         </div>
         <div class="trust-item">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>Area Screen Snip Tool</span>
+          <span>Instagram & Pinterest Snip Tool</span>
         </div>
         <div class="trust-item">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>100% Client-Side Privacy</span>
+          <span>Zero Server Storage & No Tracking</span>
         </div>
       </div>
 
@@ -728,12 +837,12 @@
         <div class="sim-header">
           <div class="sim-tabs">
             <button class="preset-chip active" onclick="switchPreset('cinematic', this)">🎬 35mm Cinematic</button>
-            <button class="preset-chip" onclick="switchPreset('pixar', this)">🧸 3D Pixar Style</button>
+            <button class="preset-chip" onclick="switchPreset('pixar', this)">🧸 3D Pixar Animation</button>
             <button class="preset-chip" onclick="switchPreset('anime', this)">🎨 Studio Ghibli</button>
             <button class="preset-chip" onclick="switchPreset('cyberpunk', this)">⚡ Cyberpunk Neon</button>
-            <button class="preset-chip" onclick="switchPreset('dslr', this)">📸 Raw DSLR 85mm</button>
+            <button class="preset-chip" onclick="switchPreset('dslr', this)">📸 Raw DSLR Portrait</button>
           </div>
-          <div style="font-size: 0.75rem; color: #8B5CF6; font-family: monospace; font-weight: 600;">Vision Engine v3.3.0</div>
+          <div style="font-size: 0.75rem; color: #8B5CF6; font-family: monospace; font-weight: 600;">Vision Engine Simulator</div>
         </div>
 
         <div class="sim-grid">
@@ -777,14 +886,14 @@
 
           <div class="sim-output">
             <div class="prompt-card" id="promptDisplay">
-              <!-- Dynamically rendered -->
+              <!-- Rendered via JS -->
             </div>
             <div class="sim-actions">
               <button class="btn btn-primary" onclick="copyPromptText()" id="copyPromptBtn">
-                📋 Copy Prompt to Clipboard
+                📋 Copy Prompt
               </button>
               <a href="https://www.midjourney.com" target="_blank" class="btn btn-secondary">
-                🚀 Launch Midjourney
+                🚀 Open in Midjourney
               </a>
             </div>
           </div>
@@ -793,11 +902,60 @@
     </div>
   </header>
 
-  <!-- Features Section -->
+  <!-- AI Model Matrix -->
+  <section class="matrix-section" id="matrix">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">AI Art Generator Compatibility Matrix</h2>
+        <p class="section-sub">Standardized output mapping across the world’s leading diffusion and autoregressive image models.</p>
+      </div>
+
+      <div class="matrix-table-wrap">
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th>Target Model</th>
+              <th>Supported Syntax</th>
+              <th>Dynamic Flags Generated</th>
+              <th>Best Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge-model">Midjourney v6.1</span></td>
+              <td>Full Natural Language + Parameters</td>
+              <td><code>--ar [W:H] --s [0-1000] --c [0-100] --v 6.1</code></td>
+              <td>Cinematic realism, fashion, lighting precision</td>
+            </tr>
+            <tr>
+              <td><span class="badge-model">Flux (Schnell / Dev)</span></td>
+              <td>Direct Descriptive Prose</td>
+              <td>Aspect Ratio tokens & photographic camera tags</td>
+              <td>Complex anatomy, fine typography, photorealism</td>
+            </tr>
+            <tr>
+              <td><span class="badge-model">Stable Diffusion XL</span></td>
+              <td>Positive + Negative Prompt Blocks</td>
+              <td>Dual-prompt separation with exact negative exclusions</td>
+              <td>Local custom checkpoint rendering & LoRA</td>
+            </tr>
+            <tr>
+              <td><span class="badge-model">DALL-E 3</span></td>
+              <td>Narrative Context</td>
+              <td>Descriptive foreground, lighting, and palette cues</td>
+              <td>Conceptual art, illustrations, vector graphics</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Features -->
   <section class="features-section" id="features">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Engineered for Generative AI Creators</h2>
+        <h2 class="section-title">Engineered for Precision Prompt Deconstruction</h2>
         <p class="section-sub">Extract every critical nuance: camera gear, lighting angle, materials, and color temperature.</p>
       </div>
 
@@ -869,55 +1027,55 @@
     </div>
   </section>
 
-  <!-- FAQ -->
+  <!-- FAQ Section -->
   <section class="faq-section" id="faq">
     <div class="container">
       <div class="section-header">
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <p class="section-sub">Everything you need to know about installation and compatibility.</p>
+        <p class="section-sub">Direct answers to common questions regarding reverse prompt generation and privacy.</p>
       </div>
 
       <div class="faq-item open">
         <div class="faq-question" onclick="toggleFaq(this)">
-          <span>How do I install the extension ZIP in Chrome?</span>
+          <span>What is a reverse image prompt generator?</span>
+          <span>▾</span>
+        </div>
+        <div class="faq-answer">
+          A reverse image prompt generator uses computer vision algorithms to examine an existing photograph, render, or artwork, and converts its composition, subject matter, lighting, and camera optics into a structured text prompt for generative AI tools like Midjourney and Flux.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>How do I install the extension ZIP in Google Chrome?</span>
           <span>▾</span>
         </div>
         <div class="faq-answer">
           1. Download the extension ZIP file.<br>
-          2. Unzip the folder on your computer.<br>
-          3. Open Chrome and navigate to <code>chrome://extensions</code>.<br>
-          4. Enable <b>Developer mode</b> (top right toggle).<br>
-          5. Click <b>Load unpacked</b> and select the extracted folder. Done!
+          2. Unzip the archive into a folder on your computer.<br>
+          3. In Google Chrome, go to <code>chrome://extensions</code>.<br>
+          4. Enable the <b>Developer mode</b> toggle at the top right.<br>
+          5. Click <b>Load unpacked</b> and select the unzipped folder.
         </div>
       </div>
 
       <div class="faq-item">
         <div class="faq-question" onclick="toggleFaq(this)">
-          <span>Which AI generators are supported?</span>
+          <span>How does aspect ratio detection work?</span>
           <span>▾</span>
         </div>
         <div class="faq-answer">
-          It generates tailored prompts for Midjourney v6.1, Flux (Schnell & Dev), Stable Diffusion XL, DALL-E 3, and Leonardo.ai.
+          The extension calculates the ratio between the image natural width and height. If the image is 3840x2160, it automatically computes 16:9 and appends <code>--ar 16:9</code> to the Midjourney prompt output.
         </div>
       </div>
 
       <div class="faq-item">
         <div class="faq-question" onclick="toggleFaq(this)">
-          <span>Is my image uploaded to external third-party servers?</span>
+          <span>Are my uploaded images stored or sent to remote servers?</span>
           <span>▾</span>
         </div>
         <div class="faq-answer">
-          No. The extension operates in your browser sandbox following strict Manifest V3 protocols with zero third-party tracking or remote image caching.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question" onclick="toggleFaq(this)">
-          <span>Does it work on Instagram, Pinterest, or Behance?</span>
-          <span>▾</span>
-        </div>
-        <div class="faq-answer">
-          Yes! The built-in Area Screen Snip tool allows you to easily capture and reverse-engineer prompts from any protected or dynamically rendered website.
+          No. The extension operates completely inside your browser following Manifest V3 standards. No images or prompts are saved on third-party servers.
         </div>
       </div>
     </div>
@@ -927,7 +1085,7 @@
   <section class="container">
     <div class="cta-banner">
       <h2>Upgrade Your AI Image Workflow Today</h2>
-      <p>Download the open-source extension, bypass tedious prompt guesswork, and generate studio-grade AI art in seconds.</p>
+      <p>Download the free open-source Chrome extension and reverse-engineer studio-grade prompts from any image in seconds.</p>
       <a href="https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases/download/v3.3.0/ai-vision-prompt-generator-v3.3.0.zip" class="btn btn-primary btn-lg">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         <span>Download Free Extension (v3.3.0)</span>
@@ -945,17 +1103,14 @@
         <a href="https://github.com/jahidulislamseo/ai-vision-prompt-generator" target="_blank">GitHub Repo</a>
         <a href="https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases">Releases</a>
         <a href="PRIVACY.md">Privacy Policy</a>
+        <a href="sitemap.xml">Sitemap</a>
       </div>
     </div>
   </footer>
 
   <script>
-    // FAQ Toggle
-    function toggleFaq(el) {
-      el.parentElement.classList.toggle("open");
-    }
+    function toggleFaq(el) { el.parentElement.classList.toggle("open"); }
 
-    // Presets Database
     const presets = {
       cinematic: {
         emoji: "🎬",
@@ -1042,7 +1197,6 @@ ${p.ar} --s ${sVal} --c ${cVal} --v 6.1`;
       document.getElementById("simDims").innerText = p.dims;
       document.getElementById("simPhotoBox").style.background = p.gradient;
 
-      // Update palette swatches
       const palRow = document.getElementById("paletteRow");
       palRow.innerHTML = "";
       p.palette.forEach(hex => {
@@ -1057,9 +1211,7 @@ ${p.ar} --s ${sVal} --c ${cVal} --v 6.1`;
       renderPrompt();
     }
 
-    function updateSliders() {
-      renderPrompt();
-    }
+    function updateSliders() { renderPrompt(); }
 
     function copyHex(hex) {
       navigator.clipboard.writeText(hex);
@@ -1078,10 +1230,9 @@ ${p.ar} --s ${sVal} --c ${cVal} --v 6.1`;
       navigator.clipboard.writeText(plainText);
       const btn = document.getElementById("copyPromptBtn");
       btn.innerText = "✅ Copied to Clipboard!";
-      setTimeout(() => { btn.innerText = "📋 Copy Prompt to Clipboard"; }, 2000);
+      setTimeout(() => { btn.innerText = "📋 Copy Prompt"; }, 2000);
     }
 
-    // Initialize
     renderPrompt();
   </script>
 </body>
