@@ -1,5 +1,5 @@
 function _calcMidjourneyAspectRatio(w,h){
-  if(!w||!h)return "16:9";
+  if(!w||!h||typeof w!=='number'||typeof h!=='number'||w<=0||h<=0)return "16:9";
   var r=w/h;
   if(r>=2.0)return "21:9";
   if(r>=1.55)return "16:9";
@@ -132,7 +132,7 @@ async function _fAG(){
   if(!src){_shEr('Could not get image URL. Try the hover button on the image directly.');return;}
   _shLd();
   try{
-    var r=await chrome.runtime.sendMessage({type:"GENERATE_FROM_CONTENT",src:src,aspectRatio:_calcMidjourneyAspectRatio((_cImg&&_cImg.naturalWidth)||(img&&img.naturalWidth), (_cImg&&_cImg.naturalHeight)||(img&&img.naturalHeight)),provider:null,key:null});
+    var r=await chrome.runtime.sendMessage({type:"GENERATE_FROM_CONTENT",src:src,aspectRatio:_calcMidjourneyAspectRatio((_cImg?(_cImg.naturalWidth||_cImg.width):0)||(img?(img.naturalWidth||img.width):0), (_cImg?(_cImg.naturalHeight||_cImg.height):0)||(img?(img.naturalHeight||img.height):0)),provider:null,key:null});
     if(r&&r.error)_shEr(r.error);
     else if(r&&r.prompt)_shRs(r.prompt);
     else _shEr('No response. Please try again.');
@@ -235,13 +235,16 @@ function _iHB(){
         }
       }
     }catch(_e){}
-    var src=_cImg.src||_cImg.currentSrc||_cImg.getAttribute('data-src')||'';
+    var targetImg=_cImg;
+    var targetW=0,targetH=0;
+    try{if(targetImg){targetW=targetImg.naturalWidth||targetImg.width||0;targetH=targetImg.naturalHeight||targetImg.height||0;}}catch(_){}
+    var targetAr=_calcMidjourneyAspectRatio(targetW,targetH);
+    var src=(targetImg&&(targetImg.src||targetImg.currentSrc||targetImg.getAttribute('data-src')))||'';
     if(!src||(src.startsWith('data:')&&src.length<200))return;
     btn.querySelector('.pm-btn-icon').innerHTML=_PM_ICON_BUSY;btn.style.opacity='0.7';
     _hBtn();_shLd();
     try{
-      var ar=_calcMidjourneyAspectRatio((_cImg&&_cImg.naturalWidth)||_cImg.width, (_cImg&&_cImg.naturalHeight)||_cImg.height);
-      var r=await chrome.runtime.sendMessage({type:"GENERATE_FROM_CONTENT",src:src,aspectRatio:ar,provider:null,key:null});
+      var r=await chrome.runtime.sendMessage({type:"GENERATE_FROM_CONTENT",src:src,aspectRatio:targetAr,provider:null,key:null});
       if(r&&r.error)_shEr(r.error);
       else if(r&&r.prompt)_shRs(r.prompt,r.detectedStyle);
       else _shEr('No response received. Please try again.');
@@ -1158,7 +1161,7 @@ function _startBulkSelect(){
               stoppedByQuota=true;
               break;
             }
-            var ar=_calcMidjourneyAspectRatio(img.naturalWidth||img.width, img.naturalHeight||img.height);
+            var bw=0,bh=0;try{if(img){bw=img.naturalWidth||img.width||0;bh=img.naturalHeight||img.height||0;}}catch(_){}var ar=_calcMidjourneyAspectRatio(bw,bh);
             var r=await chrome.runtime.sendMessage({type:'BULK_GENERATE_SINGLE',src:src,aspectRatio:ar});
             if(_bulkLimitReached(r)){
               stoppedByQuota=true;
