@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Vision Prompt Generator — Convert Any Image to Midjourney & Flux Prompts</title>
+  <meta name="description" content="Convert any webpage image, screen snip area, or desktop upload into hyper-detailed AI art prompts for Midjourney v6.1, Flux, and DALL-E 3 with dynamic aspect ratios and hex palettes.">
+  <meta name="keywords" content="image to prompt, midjourney prompt generator, reverse image prompt, flux prompt generator, chrome extension ai vision, midjourney v6 prompt">
+  <link rel="canonical" href="https://jahidulislamseo.github.io/ai-vision-prompt-generator/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jahidulislamseo.github.io/ai-vision-prompt-generator/">
+  <meta property="og:title" content="AI Vision Prompt Generator — Reverse Image Prompting for Midjourney & Flux">
+  <meta property="og:description" content="Turn any web image, screen snip, or desktop photo into production-ready prompts with aesthetic presets, parameters, and hex color extraction.">
+  <meta property="og:image" content="https://jahidulislamseo.github.io/ai-vision-prompt-generator/Icon/icon128.png">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI Vision Prompt Generator — Chrome Extension">
+  <meta name="twitter:description" content="High-precision image-to-prompt engine for Midjourney v6.1, Flux, and DALL-E 3. Manifest V3 & 100% client-side privacy.">
+  <meta name="twitter:image" content="https://jahidulislamseo.github.io/ai-vision-prompt-generator/Icon/icon128.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="Icon/icon48.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="Icon/icon16.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Structured Data: SoftwareApplication Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "AI Vision Prompt Generator",
+    "operatingSystem": "Chrome, Brave, Edge, Opera",
+    "applicationCategory": "DesignApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "Convert any web image, screen snip area, or desktop file into detailed AI image generation prompts for Midjourney v6.1, Flux, and DALL-E 3.",
+    "author": {
+      "@type": "Person",
+      "name": "Jahidul Islam"
+    },
+    "downloadUrl": "https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases/download/v3.3.0/ai-vision-prompt-generator-v3.3.0.zip",
+    "softwareVersion": "3.3.0"
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg-base: #080A10;
+      --bg-surface: #0E121E;
+      --bg-card: rgba(17, 24, 39, 0.7);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(139, 92, 246, 0.35);
+      --accent-primary: #8B5CF6;
+      --accent-secondary: #EC4899;
+      --accent-tertiary: #3B82F6;
+      --accent-gradient: linear-gradient(135deg, #8B5CF6 0%, #EC4899 50%, #3B82F6 100%);
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --text-faint: #64748B;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
+      --radius-full: 9999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .ambient-bg {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100vw;
+      height: 100vh;
+      max-width: 1440px;
+      pointer-events: none;
+      z-index: 0;
+      background: 
+        radial-gradient(circle 800px at 50% -10%, rgba(139, 92, 246, 0.2), transparent 70%),
+        radial-gradient(circle 600px at 85% 35%, rgba(236, 72, 153, 0.12), transparent 70%),
+        radial-gradient(circle 600px at 15% 65%, rgba(59, 130, 246, 0.1), transparent 70%);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Navigation */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(8, 10, 16, 0.8);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 78px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 700;
+      font-size: 1.15rem;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: var(--text-main);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 26px;
+      border-radius: var(--radius-full);
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--accent-gradient);
+      color: #FFFFFF;
+      box-shadow: 0 4px 25px rgba(139, 92, 246, 0.45);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 35px rgba(139, 92, 246, 0.7);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .btn-lg {
+      padding: 16px 36px;
+      font-size: 1.05rem;
+    }
+
+    /* Hero */
+    .hero {
+      padding: 90px 0 60px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      background: rgba(139, 92, 246, 0.12);
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      border-radius: var(--radius-full);
+      color: #C4B5FD;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 28px;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      background: #EC4899;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #EC4899;
+    }
+
+    .hero-title {
+      font-size: 3.6rem;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+      max-width: 950px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .gradient-text {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      max-width: 720px;
+      margin: 0 auto 36px;
+      font-weight: 400;
+    }
+
+    .hero-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+
+    .trust-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      color: var(--text-faint);
+      font-size: 0.85rem;
+      font-weight: 500;
+      flex-wrap: wrap;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Interactive Simulator */
+    .sim-wrap {
+      margin: 60px auto 0;
+      max-width: 1020px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-glow);
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8), 0 0 50px rgba(139, 92, 246, 0.15);
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .sim-header {
+      background: #0B0E17;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .sim-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .preset-chip {
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .preset-chip.active {
+      background: rgba(139, 92, 246, 0.2);
+      border-color: var(--accent-primary);
+      color: #DDD6FE;
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: 400px;
+    }
+
+    .sim-sidebar {
+      background: rgba(11, 14, 23, 0.7);
+      border-right: 1px solid var(--border-subtle);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .sim-preview-box {
+      width: 100%;
+      height: 180px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #1e1145, #2e0854);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #C4B5FD;
+      gap: 8px;
+      position: relative;
+    }
+
+    .palette-box {
+      display: flex;
+      gap: 8px;
+    }
+
+    .palette-color {
+      flex: 1;
+      height: 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.2s;
+    }
+
+    .palette-color:hover {
+      transform: scale(1.1);
+    }
+
+    .param-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .param-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    .param-slider {
+      width: 100%;
+      accent-color: var(--accent-primary);
+    }
+
+    .sim-output {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: radial-gradient(circle at 100% 0%, rgba(139, 92, 246, 0.08), transparent 60%);
+    }
+
+    .prompt-card {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: #E2E8F0;
+      white-space: pre-wrap;
+      position: relative;
+      margin-bottom: 20px;
+      min-height: 240px;
+    }
+
+    .prompt-label {
+      color: #A78BFA;
+      font-weight: 600;
+    }
+
+    .prompt-negative {
+      color: #F472B6;
+    }
+
+    .prompt-flags {
+      color: #38BDF8;
+    }
+
+    .sim-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Feature Grid */
+    .features-section {
+      padding: 120px 0 80px;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 60px;
+    }
+
+    .section-title {
+      font-size: 2.3rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .section-sub {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      backdrop-filter: blur(16px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .feature-card:hover {
+      border-color: var(--border-glow);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #C4B5FD;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Steps */
+    .steps-section {
+      padding: 60px 0 100px;
+    }
+
+    .step-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+
+    .step-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 30px;
+    }
+
+    .step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 18px;
+    }
+
+    .step-card h4 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .step-card p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+    }
+
+    /* FAQ */
+    .faq-section {
+      padding: 60px 0 120px;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      margin-bottom: 14px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .faq-question {
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    .faq-answer {
+      padding: 0 24px 20px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+
+    .faq-item.open {
+      border-color: var(--border-glow);
+    }
+
+    /* Bottom Banner */
+    .cta-banner {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.12) 100%);
+      border: 1px solid var(--border-glow);
+      border-radius: var(--radius-lg);
+      padding: 64px 32px;
+      text-align: center;
+      margin-bottom: 100px;
+    }
+
+    .cta-banner h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .cta-banner p {
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 32px;
+      font-size: 1.1rem;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 40px 0;
+      color: var(--text-faint);
+      font-size: 0.85rem;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    .footer-links a:hover {
+      color: var(--text-main);
+    }
+
+    @media (max-width: 900px) {
+      .hero-title { font-size: 2.6rem; }
+      .sim-grid { grid-template-columns: 1fr; }
+      .grid-3, .step-list { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-bg"></div>
+
+  <!-- Navigation -->
+  <nav>
+    <div class="container nav-inner">
+      <a href="#" class="brand">
+        <img src="Icon/icon48.png" alt="AI Vision Prompt Generator Logo" class="brand-icon">
+        <span>AI Vision Prompt</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#simulator" class="nav-link">Live Generator</a>
+        <a href="#how-it-works" class="nav-link">How It Works</a>
+        <a href="#faq" class="nav-link">FAQ</a>
+        <a href="https://github.com/jahidulislamseo/ai-vision-prompt-generator" target="_blank" class="nav-link">GitHub</a>
+      </div>
+      <a href="https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases/download/v3.3.0/ai-vision-prompt-generator-v3.3.0.zip" class="btn btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Download Extension (v3.3.0)</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="container">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span>Version 3.3.0 Mega Upgrade • Manifest V3 • Zero AI Latency</span>
+      </div>
+      <h1 class="hero-title">
+        Turn Any Image into Production <br>
+        <span class="gradient-text">Midjourney & Flux Prompts</span>
+      </h1>
+      <p class="hero-sub">
+        Hover, snip, or drag-and-drop any image to reverse-engineer dense photographic descriptions, dynamic aspect ratios, aesthetic presets, and hex color palettes.
+      </p>
+      <div class="hero-cta">
+        <a href="https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases/download/v3.3.0/ai-vision-prompt-generator-v3.3.0.zip" class="btn btn-primary btn-lg" id="hero-download-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Download Extension ZIP (v3.3.0)</span>
+        </a>
+        <a href="https://github.com/jahidulislamseo/ai-vision-prompt-generator" target="_blank" class="btn btn-secondary btn-lg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>View on GitHub (Open Source)</span>
+        </a>
+      </div>
+      <div class="trust-row">
+        <div class="trust-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>Midjourney v6.1 & Flux Schnell</span>
+        </div>
+        <div class="trust-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>Area Screen Snip Tool</span>
+        </div>
+        <div class="trust-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>100% Client-Side Privacy</span>
+        </div>
+      </div>
+
+      <!-- Interactive Vision Simulator -->
+      <div class="sim-wrap" id="simulator">
+        <div class="sim-header">
+          <div class="sim-tabs">
+            <button class="preset-chip active" onclick="switchPreset('cinematic', this)">🎬 35mm Cinematic</button>
+            <button class="preset-chip" onclick="switchPreset('pixar', this)">🧸 3D Pixar Style</button>
+            <button class="preset-chip" onclick="switchPreset('anime', this)">🎨 Studio Ghibli</button>
+            <button class="preset-chip" onclick="switchPreset('cyberpunk', this)">⚡ Cyberpunk Neon</button>
+            <button class="preset-chip" onclick="switchPreset('dslr', this)">📸 Raw DSLR 85mm</button>
+          </div>
+          <div style="font-size: 0.75rem; color: #8B5CF6; font-family: monospace; font-weight: 600;">Vision Engine v3.3.0</div>
+        </div>
+
+        <div class="sim-grid">
+          <div class="sim-sidebar">
+            <div class="sim-preview-box" id="simPhotoBox">
+              <span style="font-size: 2.2rem;" id="simEmoji">🎥</span>
+              <span style="font-size: 0.8rem; color: #DDD6FE; font-weight: 600;" id="simPhotoTitle">Cinematic Night Portrait</span>
+              <span style="font-size: 0.7rem; color: #A78BFA; font-family: monospace;" id="simDims">3840 × 2160 (16:9)</span>
+            </div>
+
+            <div class="param-group">
+              <div class="param-label">
+                <span>EXTRACTED PALETTE</span>
+                <span id="copyNotice" style="color: #10B981; font-weight: bold;"></span>
+              </div>
+              <div class="palette-box" id="paletteRow">
+                <div class="palette-color" style="background: #181824;" onclick="copyHex('#181824')" title="#181824"></div>
+                <div class="palette-color" style="background: #5B21B6;" onclick="copyHex('#5B21B6')" title="#5B21B6"></div>
+                <div class="palette-color" style="background: #EC4899;" onclick="copyHex('#EC4899')" title="#EC4899"></div>
+                <div class="palette-color" style="background: #3B82F6;" onclick="copyHex('#3B82F6')" title="#3B82F6"></div>
+                <div class="palette-color" style="background: #FACC15;" onclick="copyHex('#FACC15')" title="#FACC15"></div>
+              </div>
+            </div>
+
+            <div class="param-group">
+              <div class="param-label">
+                <span>STYLIZE (--s)</span>
+                <span id="stylizeVal">750</span>
+              </div>
+              <input type="range" class="param-slider" id="stylizeRange" min="0" max="1000" value="750" oninput="updateSliders()">
+            </div>
+
+            <div class="param-group">
+              <div class="param-label">
+                <span>CHAOS (--c)</span>
+                <span id="chaosVal">10</span>
+              </div>
+              <input type="range" class="param-slider" id="chaosRange" min="0" max="100" value="10" oninput="updateSliders()">
+            </div>
+          </div>
+
+          <div class="sim-output">
+            <div class="prompt-card" id="promptDisplay">
+              <!-- Dynamically rendered -->
+            </div>
+            <div class="sim-actions">
+              <button class="btn btn-primary" onclick="copyPromptText()" id="copyPromptBtn">
+                📋 Copy Prompt to Clipboard
+              </button>
+              <a href="https://www.midjourney.com" target="_blank" class="btn btn-secondary">
+                🚀 Launch Midjourney
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Features Section -->
+  <section class="features-section" id="features">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Engineered for Generative AI Creators</h2>
+        <p class="section-sub">Extract every critical nuance: camera gear, lighting angle, materials, and color temperature.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="feature-card">
+          <div class="feature-icon">✂️</div>
+          <h3>Area Screen Snip Tool</h3>
+          <p>Bypass protected elements on Instagram, Pinterest, and Behance. Click Snip, drag a selection box over any screen zone, and extract prompts instantly.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📐</div>
+          <h3>Dynamic Aspect Ratio Detection</h3>
+          <p>Calculates natural image dimensions automatically and generates precise Midjourney flags (`--ar 16:9`, `--ar 9:16`, `--ar 21:9`, `--ar 4:5`).</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <h3>Dominant Color Extraction</h3>
+          <p>Extracts top 5 dominant Hex color codes with one-click clipboard copying. Automatically embeds matching hex values directly into prompts.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>100-Image Bulk Engine</h3>
+          <p>Select multiple images across an entire gallery or feed. Process up to 100 images sequentially without rate limits or browser freezes.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🔄</div>
+          <h3>Prompt Re-Roll & Variations</h3>
+          <p>Change your aesthetic direction on the fly. Re-roll styles between Pixar, Anime, DSLR, and Cyberpunk without having to re-upload the image.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🚀</div>
+          <h3>1-Click AI Dispatchers</h3>
+          <p>Instantly copy the generated prompt and auto-launch directly into Midjourney Web, Leonardo.ai, ChatGPT, or Flux with a single click.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="steps-section" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">From Image to Masterpiece in 3 Steps</h2>
+        <p class="section-sub">Never struggle with prompt engineering from scratch again.</p>
+      </div>
+
+      <div class="step-list">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h4>Hover, Snip, or Drag</h4>
+          <p>Hover over any image online, snip any screen area, or drag a photo straight into the extension popup on your desktop.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h4>Vision Model Deconstructs</h4>
+          <p>Our localized vision pipeline analyzes composition, lighting ratios, optics, subject materials, and color temperatures.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h4>Paste into AI Engine</h4>
+          <p>Copy the standardized 3-part prompt architecture (Main, Negative, Parameters) and paste directly into Midjourney or Flux.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq-section" id="faq">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-sub">Everything you need to know about installation and compatibility.</p>
+      </div>
+
+      <div class="faq-item open">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>How do I install the extension ZIP in Chrome?</span>
+          <span>▾</span>
+        </div>
+        <div class="faq-answer">
+          1. Download the extension ZIP file.<br>
+          2. Unzip the folder on your computer.<br>
+          3. Open Chrome and navigate to <code>chrome://extensions</code>.<br>
+          4. Enable <b>Developer mode</b> (top right toggle).<br>
+          5. Click <b>Load unpacked</b> and select the extracted folder. Done!
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Which AI generators are supported?</span>
+          <span>▾</span>
+        </div>
+        <div class="faq-answer">
+          It generates tailored prompts for Midjourney v6.1, Flux (Schnell & Dev), Stable Diffusion XL, DALL-E 3, and Leonardo.ai.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Is my image uploaded to external third-party servers?</span>
+          <span>▾</span>
+        </div>
+        <div class="faq-answer">
+          No. The extension operates in your browser sandbox following strict Manifest V3 protocols with zero third-party tracking or remote image caching.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span>Does it work on Instagram, Pinterest, or Behance?</span>
+          <span>▾</span>
+        </div>
+        <div class="faq-answer">
+          Yes! The built-in Area Screen Snip tool allows you to easily capture and reverse-engineer prompts from any protected or dynamically rendered website.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA -->
+  <section class="container">
+    <div class="cta-banner">
+      <h2>Upgrade Your AI Image Workflow Today</h2>
+      <p>Download the open-source extension, bypass tedious prompt guesswork, and generate studio-grade AI art in seconds.</p>
+      <a href="https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases/download/v3.3.0/ai-vision-prompt-generator-v3.3.0.zip" class="btn btn-primary btn-lg">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Download Free Extension (v3.3.0)</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-inner">
+      <div>
+        © 2026 AI Vision Prompt Generator by Jahidul Islam. Manifest V3 Open Source.
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/jahidulislamseo/ai-vision-prompt-generator" target="_blank">GitHub Repo</a>
+        <a href="https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases">Releases</a>
+        <a href="PRIVACY.md">Privacy Policy</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // FAQ Toggle
+    function toggleFaq(el) {
+      el.parentElement.classList.toggle("open");
+    }
+
+    // Presets Database
+    const presets = {
+      cinematic: {
+        emoji: "🎬",
+        title: "35mm Cinematic Film",
+        dims: "3840 × 2160 (16:9)",
+        ar: "--ar 16:9",
+        gradient: "linear-gradient(135deg, #1e1145, #2e0854)",
+        main: "Cinematic medium close-up photograph of a contemplative protagonist standing in a rain-slicked city alley at dusk, anamorphic lens flare, shallow depth of field, 35mm Kodak Vision3 500T film grain, moody neon reflections, high dynamic range.",
+        negative: "--no blur, CGI, render, plastic skin, distorted hands, oversaturated, watermark",
+        palette: ["#111827", "#4C1D95", "#BE185D", "#2563EB", "#F59E0B"]
+      },
+      pixar: {
+        emoji: "🧸",
+        title: "3D Pixar / Disney Art",
+        dims: "2048 × 2048 (1:1)",
+        ar: "--ar 1:1",
+        gradient: "linear-gradient(135deg, #0f2b48, #094766)",
+        main: "3D animation render of an expressive whimsical character with oversized curious eyes, soft tactile felt wardrobe textures, warm subsurface scattering, volumetric studio rim lighting, Octane render quality, Disney Pixar aesthetic.",
+        negative: "--no photorealistic, gritty, gore, muted colors, flat lighting, sketch",
+        palette: ["#0C4A6E", "#0284C7", "#38BDF8", "#FDE047", "#F97316"]
+      },
+      anime: {
+        emoji: "🎨",
+        title: "Studio Ghibli Watercolor",
+        dims: "2560 × 1440 (16:9)",
+        ar: "--ar 16:9",
+        gradient: "linear-gradient(135deg, #133e2a, #0b5e37)",
+        main: "Hand-drawn traditional anime illustration inspired by Studio Ghibli, lush countryside hill with wildflowers, painterly gouache cloudscape, soft nostalgic afternoon sunbeams, clean ink line art, Hayao Miyazaki aesthetic.",
+        negative: "--no 3D render, digital plastic, heavy contrast, cyberpunk, dark themes",
+        palette: ["#064E3B", "#059669", "#34D399", "#A7F3D0", "#FEF08A"]
+      },
+      cyberpunk: {
+        emoji: "⚡",
+        title: "Cyberpunk High-Tech Optic",
+        dims: "1920 × 1080 (16:9)",
+        ar: "--ar 16:9",
+        gradient: "linear-gradient(135deg, #37063c, #1f023d)",
+        main: "Hyper-detailed cyberpunk scene with chrome robotic exoskeleton cyberware, holographic HUD projections, intense chromatic aberration, volumetric fog lit by ultraviolet and cyan neon signs, Unreal Engine 5 render.",
+        negative: "--no vintage, sepia, dull lighting, pastoral, low resolution, flat colors",
+        palette: ["#180026", "#831843", "#DB2777", "#06B6D4", "#A855F7"]
+      },
+      dslr: {
+        emoji: "📸",
+        title: "Raw DSLR 85mm f/1.4",
+        dims: "2160 × 2700 (4:5)",
+        ar: "--ar 4:5",
+        gradient: "linear-gradient(135deg, #2b1a0a, #451a03)",
+        main: "Authentic unprocessed DSLR portrait captured on Sony A7R V with 85mm f/1.4 G Master lens, crisp iris reflections, pores and natural skin texture visible, gentle golden hour Rembrandt lighting, unedited RAW photo.",
+        negative: "--no airbrushed, cartoon, illustration, oversaturated, AI artifacts, double face",
+        palette: ["#451A03", "#78350F", "#B45309", "#D97706", "#FDE68A"]
+      }
+    };
+
+    let currentPresetKey = "cinematic";
+
+    function renderPrompt() {
+      const p = presets[currentPresetKey];
+      const sVal = document.getElementById("stylizeRange").value;
+      const cVal = document.getElementById("chaosRange").value;
+
+      document.getElementById("stylizeVal").innerText = sVal;
+      document.getElementById("chaosVal").innerText = cVal;
+
+      const fullPrompt = `<span class="prompt-label">MAIN PROMPT:</span>
+${p.main}
+
+<span class="prompt-negative">NEGATIVE:</span>
+${p.negative}
+
+<span class="prompt-flags">PARAMETERS:</span>
+${p.ar} --s ${sVal} --c ${cVal} --v 6.1`;
+
+      document.getElementById("promptDisplay").innerHTML = fullPrompt;
+    }
+
+    function switchPreset(key, btn) {
+      currentPresetKey = key;
+      document.querySelectorAll(".preset-chip").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      const p = presets[key];
+      document.getElementById("simEmoji").innerText = p.emoji;
+      document.getElementById("simPhotoTitle").innerText = p.title;
+      document.getElementById("simDims").innerText = p.dims;
+      document.getElementById("simPhotoBox").style.background = p.gradient;
+
+      // Update palette swatches
+      const palRow = document.getElementById("paletteRow");
+      palRow.innerHTML = "";
+      p.palette.forEach(hex => {
+        const d = document.createElement("div");
+        d.className = "palette-color";
+        d.style.background = hex;
+        d.title = hex;
+        d.onclick = () => copyHex(hex);
+        palRow.appendChild(d);
+      });
+
+      renderPrompt();
+    }
+
+    function updateSliders() {
+      renderPrompt();
+    }
+
+    function copyHex(hex) {
+      navigator.clipboard.writeText(hex);
+      const notice = document.getElementById("copyNotice");
+      notice.innerText = "COPIED " + hex;
+      setTimeout(() => { notice.innerText = ""; }, 1500);
+    }
+
+    function copyPromptText() {
+      const p = presets[currentPresetKey];
+      const sVal = document.getElementById("stylizeRange").value;
+      const cVal = document.getElementById("chaosRange").value;
+      const plainText = `${p.main}
+${p.negative}
+${p.ar} --s ${sVal} --c ${cVal} --v 6.1`;
+      navigator.clipboard.writeText(plainText);
+      const btn = document.getElementById("copyPromptBtn");
+      btn.innerText = "✅ Copied to Clipboard!";
+      setTimeout(() => { btn.innerText = "📋 Copy Prompt to Clipboard"; }, 2000);
+    }
+
+    // Initialize
+    renderPrompt();
+  </script>
+</body>
+</html>

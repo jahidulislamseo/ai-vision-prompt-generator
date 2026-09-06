@@ -1,5 +1,6 @@
 # AI Vision Prompt Generator — Chrome Extension
 
+[![🌐 Official Website](https://img.shields.io/badge/🌐_Website-Live-8b5cf6?style=for-the-badge)](https://jahidulislamseo.github.io/ai-vision-prompt-generator/)
 [![⬇️ Download ZIP (v3.3.0)](https://img.shields.io/badge/⬇️_Download_Extension_ZIP-v3.3.0-2563eb?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases/download/v3.3.0/ai-vision-prompt-generator-v3.3.0.zip)
 [![Downloads](https://img.shields.io/github/downloads/jahidulislamseo/ai-vision-prompt-generator/total?style=for-the-badge&logo=github&color=2ea44f&label=Downloads)](https://github.com/jahidulislamseo/ai-vision-prompt-generator/releases)
 [![Manifest V3](https://img.shields.io/badge/Manifest_V3-Chrome_Extension-059669?style=for-the-badge&logo=google-chrome&logoColor=white)](https://developer.chrome.com/docs/extensions/mv3/)
