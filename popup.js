@@ -1,39 +1,222 @@
-
-// ── Local Image Dropzone Handler ──
+// Drag and Drop, Snip, Presets, Palette & Launchers Suite
 document.addEventListener("DOMContentLoaded", () => {
   const dzCard = document.getElementById("dz-card");
   const fileInput = document.getElementById("dz-file-input");
   const resCard = document.getElementById("dz-result-card");
   const resText = document.getElementById("dz-res-text");
   const copyBtn = document.getElementById("dz-res-copy");
+  const rerollBtn = document.getElementById("dz-res-reroll");
+  const snipBtn = document.getElementById("snip-screen-btn");
+  const paletteWrap = document.getElementById("palette-wrap");
+  const paletteSwatches = document.getElementById("palette-swatches");
 
-  if (!dzCard || !fileInput) return;
+  let lastImageDataUrl = null;
+  let lastAspect = "16:9";
+  let activePreset = "universal";
 
-  dzCard.addEventListener("click", () => fileInput.click());
-
-  dzCard.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    dzCard.classList.add("dragover");
+  // 1. Preset Chips Click Listener
+  document.querySelectorAll(".preset-chip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".preset-chip").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      activePreset = btn.dataset.preset || "universal";
+      chrome.storage.local.set({ prompt_style: activePreset });
+    });
   });
 
-  dzCard.addEventListener("dragleave", () => {
-    dzCard.classList.remove("dragover");
-  });
-
-  dzCard.addEventListener("drop", (e) => {
-    e.preventDefault();
-    dzCard.classList.remove("dragover");
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0]);
+  // Restore saved preset
+  chrome.storage.local.get(["prompt_style", "mj_stylize", "mj_chaos", "mj_tile"]).then((st) => {
+    if (st.prompt_style) {
+      activePreset = st.prompt_style;
+      document.querySelectorAll(".preset-chip").forEach((b) => {
+        b.classList.toggle("active", b.dataset.preset === activePreset);
+      });
+    }
+    if (st.mj_stylize !== undefined) {
+      const el = document.getElementById("param-stylize");
+      const v = document.getElementById("val-stylize");
+      if (el) el.value = st.mj_stylize;
+      if (v) v.textContent = st.mj_stylize;
+    }
+    if (st.mj_chaos !== undefined) {
+      const el = document.getElementById("param-chaos");
+      const v = document.getElementById("val-chaos");
+      if (el) el.value = st.mj_chaos;
+      if (v) v.textContent = st.mj_chaos;
+    }
+    if (st.mj_tile !== undefined) {
+      const el = document.getElementById("param-tile");
+      if (el) el.checked = !!st.mj_tile;
     }
   });
 
-  fileInput.addEventListener("change", () => {
-    if (fileInput.files && fileInput.files[0]) {
-      handleFile(fileInput.files[0]);
-    }
+  // 2. Parameter Sliders Listeners
+  const sSlider = document.getElementById("param-stylize");
+  if (sSlider) {
+    sSlider.addEventListener("input", (e) => {
+      document.getElementById("val-stylize").textContent = e.target.value;
+      chrome.storage.local.set({ mj_stylize: Number(e.target.value) });
+    });
+  }
+  const cSlider = document.getElementById("param-chaos");
+  if (cSlider) {
+    cSlider.addEventListener("input", (e) => {
+      document.getElementById("val-chaos").textContent = e.target.value;
+      chrome.storage.local.set({ mj_chaos: Number(e.target.value) });
+    });
+  }
+  const tCheck = document.getElementById("param-tile");
+  if (tCheck) {
+    tCheck.addEventListener("change", (e) => {
+      chrome.storage.local.set({ mj_tile: !!e.target.checked });
+    });
+  }
+
+  // 3. Quick Launch Buttons
+  document.querySelectorAll(".quick-launch-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      if (resText && resText.textContent) {
+        try {
+          await navigator.clipboard.writeText(resText.textContent);
+        } catch (_) {}
+      }
+      const url = btn.dataset.url;
+      if (url) chrome.tabs.create({ url });
+    });
   });
 
+  // 4. Snip Screen Button (Area Screenshot to Prompt)
+  if (snipBtn) {
+    snipBtn.addEventListener("click", async () => {
+      try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab || !tab.id) return;
+        // Inject snip overlay into tab
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: () => {
+            if (window._pmSnipActive) return;
+            window._pmSnipActive = true;
+
+            const overlay = document.createElement("div");
+            overlay.id = "pm-snip-overlay";
+            overlay.style.cssText = "position:fixed;inset:0;z-index:2147483647;cursor:crosshair;background:rgba(0,0,0,0.3);user-select:none;";
+
+            const tip = document.createElement("div");
+            tip.style.cssText = "position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#ffffff;padding:8px 16px;border-radius:20px;font-size:12px;font-family:sans-serif;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,0.4);pointer-events:none;";
+            tip.textContent = "✂️ Drag a box over any image area to generate prompt (ESC to cancel)";
+            overlay.appendChild(tip);
+
+            const box = document.createElement("div");
+            box.style.cssText = "position:fixed;border:2px dashed #2563eb;background:rgba(37,99,235,0.15);pointer-events:none;display:none;";
+            overlay.appendChild(box);
+
+            let startX = 0, startY = 0, isDragging = false;
+
+            overlay.addEventListener("mousedown", (e) => {
+              isDragging = true;
+              startX = e.clientX;
+              startY = e.clientY;
+              box.style.left = startX + "px";
+              box.style.top = startY + "px";
+              box.style.width = "0px";
+              box.style.height = "0px";
+              box.style.display = "block";
+            });
+
+            overlay.addEventListener("mousemove", (e) => {
+              if (!isDragging) return;
+              const x = Math.min(e.clientX, startX);
+              const y = Math.min(e.clientY, startY);
+              const w = Math.abs(e.clientX - startX);
+              const h = Math.abs(e.clientY - startY);
+              box.style.left = x + "px";
+              box.style.top = y + "px";
+              box.style.width = w + "px";
+              box.style.height = h + "px";
+            });
+
+            const cleanSnip = () => {
+              window._pmSnipActive = false;
+              overlay.remove();
+            };
+
+            window.addEventListener("keydown", (e) => {
+              if (e.key === "Escape") cleanSnip();
+            }, { once: true });
+
+            overlay.addEventListener("mouseup", async (e) => {
+              if (!isDragging) return;
+              isDragging = false;
+              const x = Math.min(e.clientX, startX);
+              const y = Math.min(e.clientY, startY);
+              const w = Math.abs(e.clientX - startX);
+              const h = Math.abs(e.clientY - startY);
+              cleanSnip();
+
+              if (w < 40 || h < 40) return;
+
+              // Capture screenshot and crop canvas
+              chrome.runtime.sendMessage({ type: "CAPTURE_VISIBLE_TAB" }, (capRes) => {
+                if (!capRes || !capRes.dataUrl) return;
+                const dpr = window.devicePixelRatio || 1;
+                const img = new Image();
+                img.onload = () => {
+                  const canvas = document.createElement("canvas");
+                  canvas.width = w * dpr;
+                  canvas.height = h * dpr;
+                  const ctx = canvas.getContext("2d");
+                  ctx.drawImage(img, x * dpr, y * dpr, w * dpr, h * dpr, 0, 0, w * dpr, h * dpr);
+                  const croppedDataUrl = canvas.toDataURL("image/png");
+                  chrome.runtime.sendMessage({
+                    type: "GENERATE_FROM_CONTENT",
+                    src: croppedDataUrl,
+                    aspectRatio: (w / h >= 1.3 ? "16:9" : (w / h <= 0.8 ? "9:16" : "1:1"))
+                  });
+                };
+                img.src = capRes.dataUrl;
+              });
+            });
+
+            document.body.appendChild(overlay);
+          }
+        });
+        window.close(); // close popup to let user drag on webpage
+      } catch (err) {
+        showToast("Cannot snip on this page: " + err.message, true);
+      }
+    });
+  }
+
+  // 5. Drag & Drop and File Picker Handling
+  if (dzCard && fileInput) {
+    dzCard.addEventListener("click", () => fileInput.click());
+
+    dzCard.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dzCard.classList.add("dragover");
+    });
+
+    dzCard.addEventListener("dragleave", () => {
+      dzCard.classList.remove("dragover");
+    });
+
+    dzCard.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dzCard.classList.remove("dragover");
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files && fileInput.files[0]) {
+        handleFile(fileInput.files[0]);
+      }
+    });
+  }
+
+  // 6. Copy button
   if (copyBtn && resText) {
     copyBtn.addEventListener("click", async () => {
       try {
@@ -41,6 +224,74 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast("✓ Copied to clipboard!");
       } catch (_) {}
     });
+  }
+
+  // 7. Re-Roll Prompt Variation button
+  if (rerollBtn && resText) {
+    rerollBtn.addEventListener("click", async () => {
+      if (!lastImageDataUrl) {
+        showToast("Upload an image first to re-roll.", true);
+        return;
+      }
+      rerollBtn.textContent = "⏳ Re-rolling...";
+      rerollBtn.disabled = true;
+      try {
+        const response = await chrome.runtime.sendMessage({
+          type: "GENERATE_FROM_CONTENT",
+          src: lastImageDataUrl,
+          aspectRatio: lastAspect,
+          style: activePreset,
+          isReroll: true
+        });
+        if (response && response.prompt) {
+          resText.textContent = response.prompt;
+          await navigator.clipboard.writeText(response.prompt);
+          showToast("✨ Variation generated & auto-copied!");
+          await renderHistory();
+          await updateHistoryCountBadge();
+        } else if (response && response.error) {
+          showToast(response.error, true);
+        }
+      } catch (e) {
+        showToast(e.message || "Re-roll failed", true);
+      } finally {
+        rerollBtn.textContent = "🔄 Re-Roll";
+        rerollBtn.disabled = false;
+      }
+    });
+  }
+
+  // Color Palette Extractor Helper
+  function extractPalette(img) {
+    try {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const sampleSize = 64;
+      canvas.width = sampleSize;
+      canvas.height = sampleSize;
+      ctx.drawImage(img, 0, 0, sampleSize, sampleSize);
+      const imgData = ctx.getImageData(0, 0, sampleSize, sampleSize).data;
+      const colorCounts = {};
+
+      for (let i = 0; i < imgData.length; i += 16) {
+        const r = imgData[i];
+        const g = imgData[i + 1];
+        const b = imgData[i + 2];
+        const a = imgData[i + 3];
+        if (a < 128) continue;
+        // Quantize colors to reduce noise
+        const qr = Math.round(r / 32) * 32;
+        const qg = Math.round(g / 32) * 32;
+        const qb = Math.round(b / 32) * 32;
+        const hex = "#" + ((1 << 24) + (qr << 16) + (qg << 8) + qb).toString(16).slice(1);
+        colorCounts[hex] = (colorCounts[hex] || 0) + 1;
+      }
+
+      const sorted = Object.entries(colorCounts).sort((a, b) => b[1] - a[1]);
+      return sorted.slice(0, 5).map((x) => x[0]);
+    } catch (_) {
+      return [];
+    }
   }
 
   function handleFile(file) {
@@ -55,11 +306,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const origSub = subEl ? subEl.innerHTML : "";
 
     if (titleEl) titleEl.textContent = "⏳ Analyzing image with AI...";
-    if (subEl) subEl.textContent = "Generating 3-part detailed prompt...";
+    if (subEl) subEl.textContent = "Extracting colors & generating prompt...";
 
     const reader = new FileReader();
     reader.onload = async (ev) => {
       const dataUrl = ev.target.result;
+      lastImageDataUrl = dataUrl;
       const img = new Image();
       img.onload = async () => {
         let ar = "16:9";
@@ -76,12 +328,35 @@ document.addEventListener("DOMContentLoaded", () => {
           else if (r >= 0.58 && r < 0.72) ar = "2:3";
           else if (r < 0.58) ar = "9:16";
         }
+        lastAspect = ar;
+
+        // Extract Dominant Palette
+        const palette = extractPalette(img);
+        if (paletteSwatches && palette.length > 0) {
+          paletteSwatches.innerHTML = "";
+          palette.forEach((hex) => {
+            const sw = document.createElement("div");
+            sw.className = "swatch-item";
+            sw.style.backgroundColor = hex;
+            sw.title = hex + " (click to copy)";
+            sw.addEventListener("click", async () => {
+              await navigator.clipboard.writeText(hex);
+              showToast("Copied " + hex);
+            });
+            paletteSwatches.appendChild(sw);
+          });
+          if (paletteWrap) paletteWrap.style.display = "block";
+        } else if (paletteWrap) {
+          paletteWrap.style.display = "none";
+        }
 
         try {
           const response = await chrome.runtime.sendMessage({
             type: "GENERATE_FROM_CONTENT",
             src: dataUrl,
-            aspectRatio: ar
+            aspectRatio: ar,
+            style: activePreset,
+            colors: palette
           });
 
           if (response && response.prompt) {

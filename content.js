@@ -435,7 +435,7 @@ async function _shRs(rawP,dSt,elapsed){
   }
 
   var CLIP_ICON='<svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/></svg>';
-  var el=_cMd('<div class="pm-header"><div class="pm-title"><div class="pm-dot"></div> AI Prompt</div><button class="pm-close" id="pm-close">\u00D7</button></div><div style="margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(59,130,246,0.18);color:#60a5fa;letter-spacing:.5px">'+bIcon+' '+_esc(bText)+'</span><span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;letter-spacing:.3px">✓ Auto-Copied</span>'+(xL?'<span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:rgba(139,92,246,0.18);color:#a78bfa;letter-spacing:.5px">'+_esc(xL)+'</span>':'')+'</div><div class="pm-prompt-box" id="pm-text">'+_esc(p)+'</div>'+nudgeHtml+'<button class="pm-btn pm-btn-primary" id="pm-copy">'+CLIP_ICON+' Copy &amp; Close</button>');
+  var el=_cMd('<div class="pm-header"><div class="pm-title"><div class="pm-dot"></div> AI Prompt</div><button class="pm-close" id="pm-close">\u00D7</button></div><div style="margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(59,130,246,0.18);color:#60a5fa;letter-spacing:.5px">'+bIcon+' '+_esc(bText)+'</span><span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;letter-spacing:.3px">✓ Auto-Copied</span>'+(xL?'<span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:rgba(139,92,246,0.18);color:#a78bfa;letter-spacing:.5px">'+_esc(xL)+'</span>':'')+'</div><div class="pm-prompt-box" id="pm-text">'+_esc(p)+'</div>'+nudgeHtml+'<div style="margin-top:10px;margin-bottom:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"><button type="button" class="pm-launch-btn" data-url="https://www.midjourney.com/imagine" style="padding:6px 2px;font-size:10px;font-weight:600;border-radius:6px;background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;cursor:pointer;text-align:center">Midjourney</button><button type="button" class="pm-launch-btn" data-url="https://app.leonardo.ai/ai-generations" style="padding:6px 2px;font-size:10px;font-weight:600;border-radius:6px;background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;cursor:pointer;text-align:center">Leonardo</button><button type="button" class="pm-launch-btn" data-url="https://chatgpt.com/" style="padding:6px 2px;font-size:10px;font-weight:600;border-radius:6px;background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;cursor:pointer;text-align:center">ChatGPT</button><button type="button" class="pm-launch-btn" data-url="https://fal.ai/models/fal-ai/flux/schnell" style="padding:6px 2px;font-size:10px;font-weight:600;border-radius:6px;background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;cursor:pointer;text-align:center">Flux</button></div><button class="pm-btn pm-btn-primary" id="pm-copy">'+CLIP_ICON+' Copy &amp; Close</button>');
   if(nudgeHtml){
     var _nudgeEl=el.querySelector('#pm-groq-nudge');
     if(_nudgeEl)_nudgeEl.onclick=function(){try{chrome.runtime.sendMessage({type:'OPEN_SETTINGS_TAB'});}catch(e){}; _rMd();};
@@ -448,6 +448,12 @@ async function _shRs(rawP,dSt,elapsed){
     _cpTmr=setTimeout(function(){_rMd();},900);
   };
   el.querySelector('#pm-close').onclick=_rMd;
+  el.querySelectorAll('.pm-launch-btn').forEach(function(b){
+    b.onclick=async function(){
+      try{await navigator.clipboard.writeText(p);}catch(_){}
+      window.open(this.dataset.url,'_blank');
+    };
+  });
 }
 function _stripHtmlLoose(s){
   return String(s||'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
@@ -536,6 +542,12 @@ function _shMissingApiKey(){
   mBtn.onmouseleave=function(){this.style.transform='translateY(0)';this.style.background='linear-gradient(135deg,rgba(139,92,246,0.26),rgba(167,139,250,0.18))';this.style.borderColor='rgba(167,139,250,0.55)';this.style.backdropFilter='none';};
   el.querySelector('#pm-dismiss').onclick=_rMd;
   el.querySelector('#pm-close').onclick=_rMd;
+  el.querySelectorAll('.pm-launch-btn').forEach(function(b){
+    b.onclick=async function(){
+      try{await navigator.clipboard.writeText(p);}catch(_){}
+      window.open(this.dataset.url,'_blank');
+    };
+  });
 }
 function _shAccessBlocked(parsed){
   var code=parsed.code||'';
@@ -621,6 +633,12 @@ function _shAccessBlocked(parsed){
   el.querySelector('#pm-pricing').onclick=isServerError?_rMd:function(){window.open('#','_blank');_rMd();};
   el.querySelector('#pm-dismiss').onclick=_rMd;
   el.querySelector('#pm-close').onclick=_rMd;
+  el.querySelectorAll('.pm-launch-btn').forEach(function(b){
+    b.onclick=async function(){
+      try{await navigator.clipboard.writeText(p);}catch(_){}
+      window.open(this.dataset.url,'_blank');
+    };
+  });
   var contactBtn=el.querySelector('#pm-contact');
   if(contactBtn)contactBtn.onclick=function(){window.open('#','_blank');_rMd();};
 }
@@ -682,6 +700,12 @@ function _shServerBusy(){
     '<button class="pm-btn pm-btn-primary" id="pm-dismiss" type="button" style="width:100%">Got it</button>'
   );
   el.querySelector('#pm-close').onclick=_rMd;
+  el.querySelectorAll('.pm-launch-btn').forEach(function(b){
+    b.onclick=async function(){
+      try{await navigator.clipboard.writeText(p);}catch(_){}
+      window.open(this.dataset.url,'_blank');
+    };
+  });
   el.querySelector('#pm-dismiss').onclick=_rMd;
 }
 function _shApiKeyExhaustedOwnKey(provider){
@@ -727,6 +751,12 @@ function _renderApiKeyExhausted(provName,otherName,provLimit,provColor,provEmoji
     '<button class="pm-btn" id="pm-dismiss" type="button" style="background:rgba(255,255,255,0.05)!important;border:1px solid rgba(255,255,255,0.08)!important;color:rgba(255,255,255,0.4)!important;font-size:12px!important">Dismiss</button>'
   );
   el.querySelector('#pm-close').onclick=_rMd;
+  el.querySelectorAll('.pm-launch-btn').forEach(function(b){
+    b.onclick=async function(){
+      try{await navigator.clipboard.writeText(p);}catch(_){}
+      window.open(this.dataset.url,'_blank');
+    };
+  });
   el.querySelector('#pm-dismiss').onclick=_rMd;
   el.querySelector('#pm-open-settings').onclick=function(){
     chrome.runtime.sendMessage({type:'OPEN_SETTINGS_TAB'}).catch(function(){});
@@ -774,6 +804,12 @@ function _shEr(msg){
   var el=_cMd('<div class="pm-header"><div class="pm-title"><div class="pm-dot" style="background:#ef4444;box-shadow:0 0 8px rgba(239,68,68,0.6)"></div> Error</div><button class="pm-close" id="pm-close">\u00D7</button></div><div class="pm-error-wrap"><div class="pm-error-body">'+_esc(friendly)+'</div></div>'+steps+'<button class="pm-btn pm-btn-danger" id="pm-dismiss">Dismiss</button>');
   el.querySelector('#pm-dismiss').onclick=_rMd;
   el.querySelector('#pm-close').onclick=_rMd;
+  el.querySelectorAll('.pm-launch-btn').forEach(function(b){
+    b.onclick=async function(){
+      try{await navigator.clipboard.writeText(p);}catch(_){}
+      window.open(this.dataset.url,'_blank');
+    };
+  });
 }
 function _renderDailyLimitModal(plan, dailyLimit){
   _rMd();_iSt();
@@ -804,6 +840,12 @@ function _renderDailyLimitModal(plan, dailyLimit){
     '</button>'
   );
   el.querySelector('#pm-close').onclick=_rMd;
+  el.querySelectorAll('.pm-launch-btn').forEach(function(b){
+    b.onclick=async function(){
+      try{await navigator.clipboard.writeText(p);}catch(_){}
+      window.open(this.dataset.url,'_blank');
+    };
+  });
   el.querySelector('#pm-dismiss').onclick=_rMd;
 }
 function _shDailyLimitPaid(st){
@@ -900,6 +942,12 @@ async function _shUpsell(opts){
     '</button>'
   );
   el.querySelector('#pm-close').onclick=_rMd;
+  el.querySelectorAll('.pm-launch-btn').forEach(function(b){
+    b.onclick=async function(){
+      try{await navigator.clipboard.writeText(p);}catch(_){}
+      window.open(this.dataset.url,'_blank');
+    };
+  });
   el.querySelector('#pm-dismiss').onclick=_rMd;
   el.querySelector('#pm-upgrade-btn').onclick=function(){_rMd();};
 }

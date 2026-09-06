@@ -1,34 +1,44 @@
 # AI Vision Prompt Generator — Chrome Extension
 
-[![⬇️ Download ZIP (v3.2.2)](https://img.shields.io/badge/⬇️_Download_Extension_ZIP-v3.2.2-2563eb?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jahidulislamseo/ai-vision-prompt-generator/archive/refs/heads/master.zip)
+[![⬇️ Download ZIP (v3.3.0)](https://img.shields.io/badge/⬇️_Download_Extension_ZIP-v3.3.0-2563eb?style=for-the-badge&logo=github&logoColor=white)](https://github.com/jahidulislamseo/ai-vision-prompt-generator/archive/refs/heads/master.zip)
 [![Manifest V3](https://img.shields.io/badge/Manifest_V3-Chrome_Extension-059669?style=for-the-badge&logo=google-chrome&logoColor=white)](https://developer.chrome.com/docs/extensions/mv3/)
 
-> 🚀 **Direct Download:** **[👉 Click Here to Download Extension ZIP (v3.2.2)](https://github.com/jahidulislamseo/ai-vision-prompt-generator/archive/refs/heads/master.zip)**  
+> 🚀 **Direct Download:** **[👉 Click Here to Download Extension ZIP (v3.3.0)](https://github.com/jahidulislamseo/ai-vision-prompt-generator/archive/refs/heads/master.zip)**  
 > *Unzip the file → Go to `chrome://extensions` → Turn on **Developer mode** → Click **Load unpacked** and select the folder.*
 
-A high-performance Manifest V3 Chrome Extension that converts any web image or local desktop graphic into detailed, production-ready AI image generation prompts for Midjourney v6, DALL-E 3, Flux Schnell/Dev, and Stable Diffusion XL.
+A high-performance Manifest V3 Chrome Extension that converts any web image, screen snip area, or desktop file into detailed, production-ready AI image generation prompts for Midjourney v6.1, DALL-E 3, Flux Schnell/Dev, and Stable Diffusion XL.
 
 ![AI Vision Prompt Generator Icon](Icon/icon128.png)
 
-## Features
+## What's New in v3.3.0
+
+- ✂️ **Area Screenshot & Screen Snip Tool:** Capture protected images on Instagram, Pinterest, or Behance with an interactive drag box.
+- 🎨 **1-Click Aesthetic Presets:** Instantly switch prompt styles between Universal, 35mm Cinematic, 3D Pixar, Anime/Studio Ghibli, Raw DSLR, and Cyberpunk.
+- ⚙️ **Midjourney v6.1 Parameter Sliders:** Interactive controls for Stylize (`--s 0-1000`), Chaos (`--c 0-100`), and Seamless Tile (`--tile`).
+- 🎨 **Dominant Color Palette Extraction:** Extracts top 5 Hex color codes (`#HEX`) with one-click clipboard copying and prompt embedding.
+- 🔄 **Prompt Re-Roll & Variation Engine:** Generate creative variations of the prompt without re-uploading the image.
+- 🚀 **1-Click AI Dispatchers:** Auto-copy prompt and launch directly in Midjourney, Leonardo.ai, ChatGPT, or Flux.
+
+---
+
+## Core Features
 
 ### 🖼️ Instant Image-to-Prompt Vision Engine
-- **Webpage Image Analysis:** Hover over any image on any webpage and click the floating AI button to analyze lighting, color temperature, shot framing, subject details, and stylistic markers.
-- **Desktop Drag & Drop (Popup):** Ingest local images straight from your computer or Mac desktop into the extension popup without needing to browse a webpage.
-- **3-Part Structured Prompt Architecture:** Produces a standardized, high-yield prompt:
-  1. `MAIN PROMPT:` Dense photographic description detailing subject physical traits, apparel textures, background gradient, camera focal length, and art direction.
+- **Webpage Image Analysis:** Hover over any image on any webpage and click the floating AI button.
+- **Desktop Drag & Drop (Popup):** Ingest local images straight from your computer or Mac desktop into the extension popup.
+- **3-Part Structured Prompt Architecture:** Standardized output block:
+  1. `MAIN PROMPT:` Dense photographic description detailing subject appearance, wardrobe textures, background gradient, camera focal length, and art direction.
   2. `NEGATIVE:` High-precision exclusion parameters (deformations, bad hands, artifacts, blurs).
   3. `IMAGE DETAILS:` Lighting scheme, camera perspective, color grade, and dynamic aspect ratio (`--ar`).
 
 ### 📐 Dynamic Aspect Ratio Detection
-- **Auto Dimension Detection:** Automatically calculates natural image dimensions (`naturalWidth / naturalHeight`) and dynamically maps them to the appropriate Midjourney aspect ratio flag (e.g. `--ar 16:9`, `--ar 9:16`, `--ar 1:1`, `--ar 21:9`, `--ar 4:5`, `--ar 2:3`).
+- Automatically calculates natural image dimensions (`naturalWidth / naturalHeight`) and dynamically maps them to the appropriate Midjourney aspect ratio flag (e.g. `--ar 16:9`, `--ar 9:16`, `--ar 1:1`, `--ar 21:9`, `--ar 4:5`, `--ar 2:3`).
 
 ### ⚡ 100-Image Bulk Batching & CSV Export
-- **Bulk Extraction & Batch Ingestion:** Process up to 100 images simultaneously from any web gallery.
-- **Unrestricted Spreadsheet CSV Export:** Export complete generation history, timestamps, detected styles, and full prompts directly to `.csv` with zero paywall gating.
+- Process up to 100 images simultaneously from any web gallery. Export complete generation history, timestamps, detected styles, and full prompts directly to `.csv`.
 
 ### 📋 Instant Auto-Copy to Clipboard
-- **Zero Extra Clicks:** Generates prompts and instantly writes them to the system clipboard (`navigator.clipboard.writeText`) with a visual confirmation badge.
+- Generates prompts and instantly writes them to the system clipboard (`navigator.clipboard.writeText`) with a visual confirmation badge.
 
 ### 💾 Persistent Local History Vault
 - Stores up to 1,000 prompt generations locally with zero midnight wipes. Search, replay, and copy any past prompt in one click.
@@ -39,12 +49,12 @@ A high-performance Manifest V3 Chrome Extension that converts any web image or l
 
 ```text
 ai-vision-prompt-generator/
-├── manifest.json         # Extension Manifest V3 configuration
+├── manifest.json         # Extension Manifest V3 configuration (v3.3.0)
 ├── PRIVACY.md            # Privacy policy
-├── popup.html            # Main popup interface (Drag & Drop, History, Settings)
-├── popup.js              # UI logic, drag & drop ingestion, and history management
-├── content.js            # In-page hover triggers and 100-image bulk batch engine
-├── background.js         # Multi-modal AI vision worker and storage controller
+├── popup.html            # Main popup interface (Drag & Drop, Snip, Presets, Sliders, History, Settings)
+├── popup.js              # UI logic, drag & drop ingestion, snip tool, palette extractor
+├── content.js            # In-page hover triggers, 100-image bulk batch engine, and 1-click launchers
+├── background.js         # Multi-modal AI vision worker, preset instructions, and tab capture
 ├── README.md             # Documentation and quick installation guide
 └── Icon/
     ├── icon16.png
@@ -96,15 +106,3 @@ If you already installed the extension and want to get the latest version:
 1. Re-download the ZIP or run `git pull origin master` inside your folder.
 2. Go to **`chrome://extensions`**.
 3. Find **"AI Vision Prompt Generator"** and click the **Reload (🔄)** icon button.
-
----
-
-## Publishing to the Chrome Web Store
-
-To build a clean `.zip` package for Chrome Web Store distribution:
-
-```bash
-zip -r ai-vision-prompt-generator.zip . -x "*.git*" "*.DS_Store*" "*.vscode*" "*.zip" "*scratch*"
-```
-
-Upload the resulting `ai-vision-prompt-generator.zip` file directly to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole).

@@ -376,6 +376,24 @@
   .dz-copy-btn{font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:#2563eb;color:#ffffff;border:none;cursor:pointer;}
   .dz-res-box{font-size:11px;line-height:1.6;color:#0f172a;background:#f8fafc;border:1px solid #cbd5e1;border-radius:9px;padding:10px;max-height:140px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;}
 
+
+  .preset-chip{
+    padding:6px 4px;font-size:10px;font-weight:600;border-radius:7px;border:1px solid #cbd5e1;background:#ffffff;
+    color:#334155;cursor:pointer;text-align:center;transition:all 0.15s ease;
+  }
+  .preset-chip:hover{border-color:#2563eb;color:#2563eb;background:#eff6ff;}
+  .preset-chip.active{background:#2563eb;color:#ffffff;border-color:#2563eb;box-shadow:0 2px 6px rgba(37,99,235,0.25);}
+  .quick-launch-btn{
+    padding:5px 2px;font-size:9.5px;font-weight:600;border-radius:6px;border:1px solid #cbd5e1;background:#f8fafc;
+    color:#1e293b;cursor:pointer;text-align:center;transition:all 0.15s ease;
+  }
+  .quick-launch-btn:hover{background:#2563eb;color:#ffffff;border-color:#2563eb;}
+  .swatch-item{
+    width:22px;height:22px;border-radius:5px;border:1px solid rgba(0,0,0,0.15);cursor:pointer;
+    transition:transform 0.15s ease;display:flex;align-items:center;justify-content:center;
+  }
+  .swatch-item:hover{transform:scale(1.15);}
+
 </style>
 </head>
 <body>
@@ -437,6 +455,59 @@
       </div>
     </div>
 
+    
+    <!-- Snip & Screen Capture Action -->
+    <div style="margin-bottom:11px;display:flex;gap:8px">
+      <button type="button" id="snip-screen-btn" style="flex:1;padding:10px 12px;background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;border-radius:10px;color:#ffffff;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 2px 8px rgba(37,99,235,0.25);transition:transform 0.15s,opacity 0.15s">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+        <span>✂️ Snip Any Screen Area</span>
+      </button>
+    </div>
+
+    <!-- Aesthetic Preset Selector -->
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:11px;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:0.5px">🎨 Aesthetic Presets</div>
+        <span style="font-size:10px;color:#64748b">1-Click Tuning</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px" id="preset-grid">
+        <button type="button" class="preset-chip active" data-preset="universal">🌐 Universal</button>
+        <button type="button" class="preset-chip" data-preset="cinematic">🎬 35mm Movie</button>
+        <button type="button" class="preset-chip" data-preset="pixar3d">🧸 3D Pixar</button>
+        <button type="button" class="preset-chip" data-preset="anime">🌸 Anime/Ghibli</button>
+        <button type="button" class="preset-chip" data-preset="fluxraw">📷 Raw DSLR</button>
+        <button type="button" class="preset-chip" data-preset="cyberpunk">🌃 Cyberpunk</button>
+      </div>
+
+      <!-- Midjourney v6.1 Advanced Parameters Accordion -->
+      <details style="margin-top:10px;border-top:1px solid #e2e8f0;padding-top:8px">
+        <summary style="font-size:11px;font-weight:600;color:#2563eb;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between">
+          <span>⚙️ Midjourney v6.1 Parameters (--s, --c, --tile)</span>
+          <span style="font-size:9px">▼</span>
+        </summary>
+        <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:10.5px;color:#334155;margin-bottom:3px">
+              <span>Stylize (--s): <strong id="val-stylize">250</strong></span>
+              <span style="color:#64748b;font-size:9.5px">0 (raw) to 1000 (artistic)</span>
+            </div>
+            <input type="range" id="param-stylize" min="0" max="1000" step="25" value="250" style="width:100%;height:4px;accent-color:#2563eb;cursor:pointer" />
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:10.5px;color:#334155;margin-bottom:3px">
+              <span>Chaos (--c): <strong id="val-chaos">0</strong></span>
+              <span style="color:#64748b;font-size:9.5px">0 to 100 (variety)</span>
+            </div>
+            <input type="range" id="param-chaos" min="0" max="100" step="5" value="0" style="width:100%;height:4px;accent-color:#7c3aed;cursor:pointer" />
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px">
+            <span style="font-size:10.5px;color:#334155">Seamless Tile Pattern (--tile):</span>
+            <input type="checkbox" id="param-tile" style="accent-color:#2563eb;cursor:pointer" />
+          </div>
+        </div>
+      </details>
+    </div>
+
     <!-- Local Desktop Image Upload Dropzone -->
     <div class="dz-card" id="dz-card">
       <input type="file" id="dz-file-input" accept="image/png, image/jpeg, image/webp, image/gif" style="display:none;" />
@@ -447,15 +518,35 @@
       <div class="dz-sub">Generate prompts from desktop PNG, JPG, WEBP</div>
     </div>
 
-    <div id="dz-result-card" style="display:none;margin-bottom:12px;">
-      <div class="dz-res-hdr">
-        <span class="dz-res-badge">✨ Generated Prompt</span>
-        <button type="button" id="dz-res-copy" class="dz-copy-btn">📋 Copy</button>
+    <div id="dz-result-card" style="display:none;margin-bottom:12px;background:#ffffff;border:1px solid #cbd5e1;border-radius:12px;padding:12px;box-shadow:0 4px 14px rgba(0,0,0,0.06)">
+      <div class="dz-res-hdr" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span class="dz-res-badge" style="font-size:10px;font-weight:700;color:#059669;background:#ecfdf5;border:1px solid #a7f3d0;padding:3px 9px;border-radius:20px">✨ Generated Prompt</span>
+        <div style="display:flex;gap:6px">
+          <button type="button" id="dz-res-reroll" class="dz-reroll-btn" style="font-size:11px;font-weight:600;padding:4px 9px;border-radius:6px;background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;cursor:pointer;display:flex;align-items:center;gap:4px">🔄 Re-Roll</button>
+          <button type="button" id="dz-res-copy" class="dz-copy-btn" style="font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;background:#2563eb;color:#ffffff;border:none;cursor:pointer">📋 Copy</button>
+        </div>
       </div>
-      <div id="dz-res-text" class="dz-res-box"></div>
-    </div>
 
-    <div id="limit-nudge">
+      <!-- Color Palette Bar -->
+      <div id="palette-wrap" style="display:none;margin-bottom:8px;padding:6px 8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px">
+        <div style="font-size:9.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">🎨 Extracted Dominant Palette (Click to Copy):</div>
+        <div id="palette-swatches" style="display:flex;gap:6px;align-items:center"></div>
+      </div>
+
+      <div id="dz-res-text" class="dz-res-box" style="font-size:11px;line-height:1.6;color:#0f172a;background:#f8fafc;border:1px solid #cbd5e1;border-radius:9px;padding:10px;max-height:160px;overflow-y:auto;white-space:pre-wrap;word-break:break-word"></div>
+
+      <!-- 1-Click Send to AI Launchers -->
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9">
+        <div style="font-size:10px;font-weight:600;color:#64748b;margin-bottom:6px">🚀 1-Click Launch & Paste:</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px">
+          <button type="button" class="quick-launch-btn" data-url="https://www.midjourney.com/imagine">Midjourney</button>
+          <button type="button" class="quick-launch-btn" data-url="https://app.leonardo.ai/ai-generations">Leonardo</button>
+          <button type="button" class="quick-launch-btn" data-url="https://chatgpt.com/">ChatGPT</button>
+          <button type="button" class="quick-launch-btn" data-url="https://fal.ai/models/fal-ai/flux/schnell">Flux</button>
+        </div>
+      </div>
+    </div>
+<div id="limit-nudge">
       <span class="nudge-msg"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6z"/></svg> You've used <strong id="nudge-used">7</strong>/10 today — loving it?<br><span style="color:#334155;font-size:10px">Upgrade for unlimited prompts + more</span></span>
       <a class="nudge-upgrade" href="#" target="_blank" rel="noopener noreferrer"><svg style="display:inline-block;vertical-align:-0.15em" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/></svg> Upgrade</a>
       <button class="nudge-dismiss" id="nudge-dismiss-btn" aria-label="Dismiss">×</button>

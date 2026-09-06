@@ -123,19 +123,79 @@ NEGATIVE:
 blurry, deformed, ugly, low quality, watermark, text obscured, chaotic
 
 IMAGE DETAILS:
-[Shot type, framing, depth of field, bokeh, lighting type, e.g. Eye-level shot, medium close-up framing, shallow depth of field, slight bokeh, natural lighting]`,
+[Shot type, framing, depth of field, bokeh, lighting type, dominant colors, and aspect ratio]`,
+
+  cinematic:
+    `Analyze this image meticulously and craft an ultra-detailed 35mm film cinematic prompt. Output EXACTLY in the following 3-section format with no markdown asterisks or bolding:
+
+MAIN PROMPT:
+[Cinematic 35mm still, captured on Leica M11 with Summilux 35mm f/1.4 lens, natural organic film grain, photorealistic rendering detailing subject appearance, wardrobe textures, authentic skin imperfections, cinematic volumetric lighting, atmospheric haze, color graded with Kodak Portra 400 tones, with "replicate the exact typography style"]
+
+NEGATIVE:
+blurry, digital rendering, flat lighting, oversaturated, deformed, bad anatomy, watermark, signature
+
+IMAGE DETAILS:
+[Camera: Leica M11 35mm, Framing: Cinematic wide/medium, Lighting: Volumetric atmospheric, Palette: Rich Kodak tones, Aspect Ratio: --ar 21:9]`,
+
+  pixar3d:
+    `Analyze this image and transform it into a whimsical 3D Disney/Pixar animated film scene. Output EXACTLY in the following 3-section format with no markdown asterisks or bolding:
+
+MAIN PROMPT:
+[A stunning 3D computer animated movie still in modern Pixar and Disney animation studio style, expressive stylized character design, warm subsurface scattering on skin, rich tactile clothing fabrics, soft magical global illumination, vibrant joyful color palette, rendered with Octane Render and Unreal Engine 5, with "replicate the exact typography style"]
+
+NEGATIVE:
+photorealistic, gritty, eerie, grotesque, dark, bad geometry, low poly, noisy, watermark
+
+IMAGE DETAILS:
+[Style: 3D Pixar Animation, Lighting: Warm key light with soft rim fill, Engine: Octane 3D Render, Colors: Saturated vibrant storybook tones]`,
+
+  anime:
+    `Analyze this image and transform it into a masterpiece Japanese Anime illustration. Output EXACTLY in the following 3-section format with no markdown asterisks or bolding:
+
+MAIN PROMPT:
+[Breathtaking Japanese anime visual, Makoto Shinkai and Studio Ghibli aesthetic, intricate hand-drawn line art, expressive eyes, dramatic sky with sunbeams and painted cumulonimbus clouds, lush scenic background, emotive atmospheric lighting, cinematic anime keyframe illustration, with "replicate the exact typography style"]
+
+NEGATIVE:
+photorealistic, 3D CGI, bad sketch, western comic, dull colors, low resolution, watermark
+
+IMAGE DETAILS:
+[Style: Japanese Anime Keyframe, Art Direction: Studio Ghibli / Makoto Shinkai, Palette: Sky blues, emerald greens, warm sunset glow]`,
+
+  fluxraw:
+    `Analyze this image and craft an authentic unedited raw DSLR camera prompt. Output EXACTLY in the following 3-section format with no markdown asterisks or bolding:
+
+MAIN PROMPT:
+[Unedited raw candid photograph, Hasselblad H6D-100c medium format camera, authentic skin textures, natural skin pores, un-retouched facial features, candid posture, realistic ambient lighting, genuine depth of field, documentary photography style, with "replicate the exact typography style"]
+
+NEGATIVE:
+airbrushed, AI plastic skin, Photoshop smooth, overprocessed, fake, CGI, render, watermark
+
+IMAGE DETAILS:
+[Camera: Hasselblad Medium Format Raw, Lighting: True ambient daylight, Depth: True f/2.8 optical bokeh, Detail: Extreme pore-level clarity]`,
+
+  cyberpunk:
+    `Analyze this image and transform it into a neon futuristic cyberpunk scene. Output EXACTLY in the following 3-section format with no markdown asterisks or bolding:
+
+MAIN PROMPT:
+[Dystopian high-tech cyberpunk aesthetic, drenched in neon cyan and magenta illumination, wet reflective asphalt surfaces with rain puddles, cybernetic augmentations, holographic street signage, dense futuristic megacity background, high-contrast chiaroscuro lighting, with "replicate the exact typography style"]
+
+NEGATIVE:
+daylight, pastel, countryside, vintage retro, low contrast, washed out, blurry
+
+IMAGE DETAILS:
+[Style: Cyberpunk Sci-Fi, Lighting: High-contrast neon glow and wet reflections, Mood: Moody futuristic noir]`,
 
   midjourney:
     `Analyze this image meticulously and output EXACTLY in the following 3-section format with no markdown asterisks or bolding:
 
 MAIN PROMPT:
-[A photorealistic detailed description capturing the subjects, clothing, poses, facial expression, background, dominant colors, composition, and exact text/typography with "replicate the exact typography style". End the prompt with Midjourney parameters like --ar 16:9 --v 6.1 --stylize 250]
+[A photorealistic detailed description capturing the subjects, clothing, poses, facial expression, background, dominant colors, composition, and exact text/typography with "replicate the exact typography style". End with Midjourney parameters like --ar 16:9 --v 6.1 --stylize 250]
 
 NEGATIVE:
 blurry, deformed, ugly, low quality, watermark, text obscured, chaotic
 
 IMAGE DETAILS:
-[Shot type, framing, depth of field, bokeh, lighting type, e.g. Eye-level shot, medium close-up framing, shallow depth of field, slight bokeh, natural lighting]`,
+[Shot type, framing, depth of field, bokeh, lighting type]`,
 
   stablediff:
     `Analyze this image meticulously and output EXACTLY in the following 3-section format with no markdown asterisks or bolding:
@@ -1058,25 +1118,67 @@ async function _pmGenerate(imageUrl, tabId, opts = {}) {
   try {
     const data = await chrome.storage.local.get([
       "prompt_style",
-      "pm_is_pro",
-      "pm_system",
-      "pm_plan",
-      "pm_daily_limit",
-      "pm_remaining"
+      "mj_stylize",
+      "mj_chaos",
+      "mj_tile"
     ]);
-    const style = data.prompt_style || "universal";
+    const style = opts.style || data.prompt_style || "universal";
     const targetAr = opts.aspectRatio || "16:9";
     const resolved = await _resolveImageForWorker(imageUrl, tabId);
 
     const { groq: groqKeys, gemini: gemKeys } = await _readApiQueues();
     if (!groqKeys.length && !gemKeys.length) {
-      throw new Error("PM_ERR:MISSING_USER_API_KEY\nPlease open the AI Vision Prompt extension and enter your Groq or Gemini API key.");
+      throw new Error("PM_ERR:MISSING_USER_API_KEY\nPlease open the AI Vision Prompt extension and enter your Groq or Gemini API key in Settings.");
     }
 
-    const out = await _generateWithOwnKey(imageUrl, style, { resolved, targetAr });
-    await _persistGenerateHistory(out.prompt, out.detectedStyle);
-    await _finalizeGenerationQuotaUi(out._quotaTruth);
-    return { prompt: out.prompt, detectedStyle: out.detectedStyle };
+    const modifiers = opts.modifiers || {
+      stylize: data.mj_stylize || 250,
+      chaos: data.mj_chaos || 0,
+      tile: !!data.mj_tile
+    };
+
+    const out = await _generateWithOwnKey(imageUrl, style, {
+      resolved,
+      targetAr,
+      modifiers,
+      colors: opts.colors,
+      isReroll: opts.isReroll
+    });
+
+    let finalPrompt = out.prompt || "";
+    let extraParams = [];
+    if (targetAr) extraParams.push("--ar " + targetAr);
+    if (modifiers.stylize !== undefined && Number(modifiers.stylize) !== 250) extraParams.push("--s " + modifiers.stylize);
+    if (modifiers.chaos && Number(modifiers.chaos) > 0) extraParams.push("--c " + modifiers.chaos);
+    if (modifiers.tile) extraParams.push("--tile");
+
+    if (extraParams.length > 0) {
+      const paramStr = extraParams.join(" ");
+      if (finalPrompt.includes("MAIN PROMPT:")) {
+        const negIdx = finalPrompt.indexOf("NEGATIVE:");
+        if (negIdx !== -1) {
+          let mainPart = finalPrompt.slice(0, negIdx).trim();
+          if (!mainPart.includes("--ar ")) {
+            mainPart += " " + paramStr;
+          }
+          finalPrompt = mainPart + "\n\n" + finalPrompt.slice(negIdx).trim();
+        } else if (!finalPrompt.includes("--ar ")) {
+          finalPrompt += " " + paramStr;
+        }
+      } else if (!finalPrompt.includes("--ar ")) {
+        finalPrompt += " " + paramStr;
+      }
+    }
+
+    if (opts.colors && Array.isArray(opts.colors) && opts.colors.length > 0) {
+      const paletteLine = "Color Palette: " + opts.colors.join(", ");
+      if (finalPrompt.includes("IMAGE DETAILS:")) {
+        finalPrompt = finalPrompt.trim() + "\n" + paletteLine;
+      }
+    }
+
+    await _persistGenerateHistory(finalPrompt, out.detectedStyle || style);
+    return { prompt: finalPrompt, detectedStyle: out.detectedStyle || style, colors: opts.colors };
   } finally {
     _pmReleaseGenerateLock();
   }
@@ -1532,14 +1634,31 @@ async function _generateWithGemini(imageUrl, style, apiKey) {
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === 'GENERATE_FROM_CONTENT') {
     const tabId = sender && sender.tab && sender.tab.id;
-    _pmGenerate(msg.src, tabId, { aspectRatio: msg.aspectRatio })
+    _pmGenerate(msg.src, tabId, {
+      aspectRatio: msg.aspectRatio,
+      style: msg.style,
+      modifiers: msg.modifiers,
+      colors: msg.colors,
+      isReroll: !!msg.isReroll
+    })
       .then((r) =>
-        sendResponse({ prompt: r.prompt, detectedStyle: r.detectedStyle })
+        sendResponse({ prompt: r.prompt, detectedStyle: r.detectedStyle, colors: r.colors })
       )
       .catch((e) => {
         const _eMsg = String((e && e.message) || '');
         sendResponse({ error: _eMsg });
       });
+    return true;
+  }
+
+  if (msg.type === 'CAPTURE_VISIBLE_TAB') {
+    chrome.tabs.captureVisibleTab(null, { format: 'png' }, (dataUrl) => {
+      if (chrome.runtime.lastError || !dataUrl) {
+        sendResponse({ ok: false, error: (chrome.runtime.lastError && chrome.runtime.lastError.message) || 'Capture failed' });
+      } else {
+        sendResponse({ ok: true, dataUrl });
+      }
+    });
     return true;
   }
 
