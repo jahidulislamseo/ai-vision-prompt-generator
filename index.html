@@ -702,7 +702,7 @@
     <div class="container">
       <div class="hero-tag">
         <span class="status-dot"></span>
-        <span>OPTICAL PROMPT ENGINE v3.3.0 • MIDJOURNEY v6.1 &amp; FLUX</span>
+        <span>OPTICAL PROMPT ENGINE v3.3.0 • POWERED BY GEMINI 3.8 FLASH &amp; GROQ QWEN 3.8</span>
       </div>
       <h1 class="hero-title">
         Optical Reverse Prompting for <br>
@@ -723,6 +723,10 @@
       </div>
       <div class="spec-badges">
         <div class="spec-item">
+          <svg class="svg-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Gemini 3.8 &amp; Groq Vision</span>
+        </div>
+        <div class="spec-item">
           <svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
           <span>Aspect Ratio Detection</span>
         </div>
@@ -732,7 +736,7 @@
         </div>
         <div class="spec-item">
           <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          <span>Client-Side Quantization</span>
+          <span>Client-Side Privacy</span>
         </div>
       </div>
 
@@ -973,6 +977,16 @@
         </div>
         <div class="faq-a">
           No. All canvas quantization, aspect ratio math, and parameter formatting execute within the local extension background service worker. No images are transmitted to external servers.
+        </div>
+      </div>
+
+      <div class="faq-row">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>Which multimodal vision models power prompt extraction?</span>
+          <span>+</span>
+        </div>
+        <div class="faq-a">
+          The extension natively supports Google Gemini 3.8 Flash (with intelligent auto-fallback to 3.6, 3.5, and 2.5) and Groq Qwen 3.8 27B / Llama 3.2 Vision. Prompt analysis runs directly between your browser and the model API using your personal private key (BYOK), eliminating intermediate proxies or telemetry trackers.
         </div>
       </div>
     </div>
