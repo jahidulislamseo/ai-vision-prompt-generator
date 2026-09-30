@@ -1036,6 +1036,11 @@ function _isGeminiRotateErr(e) {
     m.includes('rate limit') ||
     m.includes('invalid gemini') ||
     m.includes('403') ||
+    m.includes('high demand') ||
+    m.includes('spikes in demand') ||
+    m.includes('temporarily') ||
+    m.includes('unavailable') ||
+    m.includes('overloaded') ||
     (m.includes('400') && m.includes('gemini'))
   );
 }
@@ -1511,50 +1516,83 @@ async function _generateWithGroq(imageUrl, style, apiKey) {
   const stylePrompt =
     STYLE_INSTRUCTIONS[style] || STYLE_INSTRUCTIONS.universal;
 
-  let res;
-  try {
-    res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + apiKey
-      },
-      body: JSON.stringify({
-        model: 'qwen/qwen3.6-27b',
-        max_tokens: 1024,
-        reasoning_effort: 'none',
-        messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: stylePrompt },
-              { type: 'image_url', image_url: { url: imageUrl } }
-            ]
-          }
-        ]
-      })
-    });
-  } catch {
-    throw new Error('Cannot reach Groq API. Check your internet connection.');
+  const GROQ_MODELS = [
+    'qwen/qwen3.8-27b',
+    'llama-3.2-11b-vision-preview',
+    'llama-3.2-90b-vision-preview'
+  ];
+
+  for (const model of GROQ_MODELS) {
+    let res;
+    const bodyPayload = {
+      model,
+      max_tokens: 1024,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: stylePrompt },
+            { type: 'image_url', image_url: { url: imageUrl } }
+          ]
+        }
+      ]
+    };
+
+    if (model.startsWith('qwen')) {
+      bodyPayload.reasoning_effort = 'none';
+    }
+
+    try {
+      res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + apiKey
+        },
+        body: JSON.stringify(bodyPayload)
+      });
+    } catch {
+      throw new Error('Cannot reach Groq API. Check your internet connection.');
+    }
+
+    if (res.status === 401) throw new Error('Invalid Groq API key. Check Settings.');
+    if (res.status === 429) throw new Error('Groq rate limit. Try again in a moment.');
+
+    const data = await res.json();
+    if (data.error) {
+      const msg = data.error.message || '';
+      if (
+        msg.includes('does not exist') ||
+        msg.includes('do not have access') ||
+        msg.includes('decommissioned') ||
+        msg.includes('deprecated') ||
+        msg.includes('not found')
+      ) {
+        continue;
+      }
+      throw new Error('Groq: ' + (msg || 'Unknown error'));
+    }
+
+    const generated = data.choices?.[0]?.message?.content?.trim();
+    if (!generated) throw new Error('Empty response from Groq.');
+
+    return { prompt: generated, detectedStyle: null };
   }
 
-  if (res.status === 401) throw new Error('Invalid Groq API key. Check Settings.');
-  if (res.status === 429) throw new Error('Groq rate limit. Try again in a moment.');
-
-  const data = await res.json();
-  if (data.error) throw new Error('Groq: ' + (data.error.message || 'Unknown error'));
-
-  const generated = data.choices?.[0]?.message?.content?.trim();
-  if (!generated) throw new Error('Empty response from Groq.');
-
-  return { prompt: generated, detectedStyle: null };
+  throw new Error('No compatible Groq vision model available. Please check settings or API status.');
 }
 
 async function _generateWithGemini(imageUrl, style, apiKey) {
   const stylePrompt =
     STYLE_INSTRUCTIONS[style] || STYLE_INSTRUCTIONS.universal;
 
-  const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-3.6-flash"];
+  const GEMINI_MODELS = [
+    'gemini-3.8-flash',
+    'gemini-3.6-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-2.5-flash',
+    'gemini-2.5-flash-lite'
+  ];
 
   let imageBase64;
   let mimeType;
@@ -1583,6 +1621,7 @@ async function _generateWithGemini(imageUrl, style, apiKey) {
     }
   }
 
+  let lastModelErr;
   for (const model of GEMINI_MODELS) {
     let res;
     try {
@@ -1608,14 +1647,36 @@ async function _generateWithGemini(imageUrl, style, apiKey) {
       throw new Error('Cannot reach Gemini API. Check your internet connection.');
     }
 
-    if (res.status === 400 || res.status === 403) throw new Error('Invalid Gemini API key.');
-    if (res.status === 429) throw new Error('Gemini rate limit. Try again.');
+    if (res.status === 400 || res.status === 403) {
+      const authData = await res.json().catch(() => ({}));
+      const authMsg = (authData.error && authData.error.message) || '';
+      if (authMsg.toLowerCase().includes('key not valid') || authMsg.toLowerCase().includes('api key not valid') || res.status === 403) {
+        throw new Error('Invalid Gemini API key. Check Settings.');
+      }
+    }
 
-    const data = await res.json();
+    if (res.status === 429 || res.status === 503 || res.status === 500) {
+      continue; // Model rate limit or capacity spike: try next model in fallback list
+    }
+
+    const data = await res.json().catch(() => ({}));
     if (data.error) {
       const msg = data.error.message || '';
-      if (msg.includes('no longer available') || msg.includes('deprecated') || msg.includes('not found')) {
-        continue; // try next model in list
+      const lower = msg.toLowerCase();
+      lastModelErr = msg;
+      if (
+        lower.includes('no longer available') ||
+        lower.includes('deprecated') ||
+        lower.includes('not found') ||
+        lower.includes('high demand') ||
+        lower.includes('demand') ||
+        lower.includes('spikes in demand') ||
+        lower.includes('overloaded') ||
+        lower.includes('unavailable') ||
+        lower.includes('resource_exhausted') ||
+        lower.includes('quota')
+      ) {
+        continue; // Seamlessly try next model in cascade
       }
       throw new Error('Gemini: ' + (msg || 'Unknown error'));
     }
@@ -1623,12 +1684,12 @@ async function _generateWithGemini(imageUrl, style, apiKey) {
     const _parts = data.candidates?.[0]?.content?.parts || [];
     const _textPart = _parts.find((p) => !p.thought) || _parts[0];
     const generated = _textPart?.text?.trim();
-    if (!generated) throw new Error('Empty response from Gemini.');
+    if (!generated) continue;
 
     return { prompt: generated, detectedStyle: null };
   }
 
-  throw new Error('Gemini model unavailable. Please try again.');
+  throw new Error('Gemini: ' + (lastModelErr || 'All Gemini models are currently experiencing high traffic. Please retry in a few moments.'));
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
